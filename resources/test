@@ -7,3 +7,31 @@ def m : Nat -> Nat -> Nat.
 [i : Nat] m i z --> i.
 [j : Nat] m z j --> j.
 [i : Nat, j : Nat] m (s i) (s j) --> s (m i j).
+
+(; Sorts ;)
+
+Sort : Type.
+
+prop : Sort.
+type : Nat -> Sort.
+
+(; Universe successors ;)
+def succ : Sort -> Sort.
+[] succ prop --> type z.
+[i : Nat] succ (type i) --> type (s i).
+
+(; Universe cumulativity ;)
+def next : Sort -> Sort.
+[] next prop --> type z.
+[i : Nat] next (type i) --> type (s i).
+
+(; Universe product rules ;)
+def rule : Sort -> Sort -> Sort.
+[s1 : Sort] rule s1 prop --> prop.
+[s2 : Sort] rule prop s2 --> s2.
+[i : Nat, j : Nat] rule (type i) (type j) --> type (m i j).
+
+def max : Sort -> Sort -> Sort.
+[s1 : Sort] max s1 prop --> s1.
+[s2 : Sort] max prop s2 --> s2.
+[i : Nat, j : Nat] max (type i) (type j) --> type (m i j).
