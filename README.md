@@ -2,7 +2,7 @@
 
 ## Installation
 
- - In the file dedukti-editor.js, use your user name instead of using 'isma' for the utilisateur variable.
+ - For the moment, you have to create a package called dedukti-editor, then replace the files created with it by the files in the repo.
 
 ## Utilisation
 
