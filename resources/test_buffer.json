@@ -1,12 +1,12 @@
-[ "1", [ "Send", "aaaaaaaaaa
-a
-aa
+[ "1", [ "Send", "Nat : Type.
 
+z : Nat.
+s : Nat -> Nat.
 
-
-
-
-aaa
+def m : Nat -> Nat -> Nat.
+[i : Nat] m i z --> i.
+[j : Nat] m z j --> j.
+[i : Nat, j : Nat] m (s i) (s j) --> s (m i j).
 "]]
 
 ["2", ["Check", 0]]

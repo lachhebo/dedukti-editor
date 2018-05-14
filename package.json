@@ -1,13 +1,13 @@
 {
   "name": "dedukti-editor",
   "main": "./lib/dedukti-editor",
-  "version": "0.0.0",
-  "description": "A short description of your package",
+  "version": "0.1.1",
+  "description": "A IDE for lambdapi (Dedukti)",
   "keywords": [],
   "activationCommands": {
     "atom-workspace": "dedukti-editor:toggle"
   },
-  "repository": "https://github.com/atom/dedukti-editor",
+  "repository": "https://github.com/lachhebo/dedukti-editor",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
