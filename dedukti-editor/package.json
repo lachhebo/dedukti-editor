@@ -1,0 +1,19 @@
+{
+  "name": "dedukti-editor",
+  "main": "./lib/dedukti-editor",
+  "version": "0.0.0",
+  "description": "A short description of your package",
+  "keywords": [
+  ],
+  "activationCommands": {
+    "atom-workspace": "dedukti-editor:toggle"
+  },
+  "repository": "https://github.com/atom/dedukti-editor",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "node-cmd": "^3.0.0"
+  }
+}

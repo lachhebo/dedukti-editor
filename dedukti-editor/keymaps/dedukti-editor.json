@@ -1,0 +1,9 @@
+{
+  "atom-workspace": {
+    "ctrl-alt-o": "dedukti-editor:toggle",
+    "ctrl-alt-c": "dedukti-editor:check",
+    "ctrl-alt-e": "dedukti-editor:erase",
+    "ctrl-alt-n": "dedukti-editor:next_line",
+    "ctrl-alt-p": "dedukti-editor:previous_line"
+  }
+}
