@@ -2,7 +2,9 @@
 
 ## Installation
 
- - For the moment, you have to create a package called dedukti-editor, then replace the files created with it by the files in the repo.
+ - open a terminal
+ - go to the folder where you have installed the package
+ - run the command make 
 
 ## Utilisation
 
