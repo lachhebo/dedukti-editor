@@ -4,7 +4,8 @@
 
  - open a terminal
  - go to the folder where you have installed the package
- - run the command make 
+ - run the command make
+ - install lptop.native (or a symlink of it) in the folder resource.
 
 ## Utilisation
 
