@@ -13,6 +13,7 @@
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
+    "json-parse-safe": "^1.0.5",
     "node-cmd": "^3.0.0"
   }
 }
