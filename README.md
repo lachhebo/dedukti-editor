@@ -2,28 +2,37 @@
 
 ## Installation
 
- - open a terminal
- - go to the folder where you have installed the package
- - run the command make
- - install lptop.native (or a symlink of it) in the folder resource.
+- You need to install the package atom-ide-ui in atom
+    - on the menu bar, click on packages
+    - click on setting view
+    - click on install Packages/Themes
+    - search atom-ide-ui
+    - click on install
 
-## Utilisation
+Then you need to clone this package
+  - Open a terminal
+  - go in the package folder
+  - run the command apm link
 
-| Action | Command |
-|--|--|
-| Activation | ctrl+alt+o |
-| Check  | ctrl+alt+c |
-| Erase color | ctrl+alt+e |
+Finally, you need the lptop.native program :
+  - install it on your machine
+  - create a symlink of this program into the folder resource
 
+## Work to do
 
-##Work to do :
-
-- Make sure the package is associated to file .dk
+- Make sure the package is associated to file .dk (Done)
 - Rendering of the info panel
 - editing several files at the same time
 - configuration panel
-- tree colors
+- three colors
 - handling cross-compatibility (Windows/Mac)
-- add a grammar
+- add a grammar (Done)
 - add a color synthax.
-- add a way to stop the extension ?
+
+
+## State :
+
+When atom is detecting a file with a .dk extension, he is launching the server, But nothing else
+happens.
+
+ 

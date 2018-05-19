@@ -1,19 +1,32 @@
 {
   "name": "dedukti-editor",
-  "main": "./lib/dedukti-editor",
+  "main": "scr/main.js",
   "version": "0.1.1",
   "description": "A IDE for lambdapi (Dedukti)",
-  "keywords": [],
-  "activationCommands": {
-    "atom-workspace": "dedukti-editor:toggle"
-  },
   "repository": "https://github.com/lachhebo/dedukti-editor",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
-    "json-parse-safe": "^1.0.5",
-    "node-cmd": "^3.0.0"
+    "atom-languageclient": "^0.9.5",
+    "child_process": "^1.0.2"
+  },
+  "enhancedScopes": [
+    "source.dedukti"
+  ],
+  "consumedServices": {
+    "atom-ide-busy-signal": {
+      "versions": {
+        "0.1.0": "consumeBusySignal"
+      }
+    },
+    "outline-view": {
+      "versions": {
+        "0.1.0": "provideOutlines"
+      }
+    }
+  },
+  "providedServices": {
   }
 }
