@@ -12,9 +12,6 @@
     "atom-languageclient": "^0.9.5",
     "child_process": "^1.0.2"
   },
-  "enhancedScopes": [
-    "source.dedukti"
-  ],
   "consumedServices": {
     "atom-ide-busy-signal": {
       "versions": {
@@ -24,6 +21,11 @@
     "outline-view": {
       "versions": {
         "0.1.0": "provideOutlines"
+      }
+    },
+    "linter-indie": {
+      "versions": {
+        "2.0.0": "consumeLinterV2"
       }
     }
   },

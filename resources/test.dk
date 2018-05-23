@@ -8,9 +8,11 @@ def m : Nat -> Nat -> Nat.
 [i : Nat, j : Nat] m (s i) (s j) --> s (m i j).
 
 (; Sorts ;)
+
 Sort : Type.
 prop : Sort.
 type : Nat -> Sort.
+
 (; Universe successors ;)
 
 def succ : Sort -> Sort.

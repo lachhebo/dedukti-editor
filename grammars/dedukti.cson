@@ -12,5 +12,37 @@ firstLineMatch: '' # A regular expression that is matched against the first line
 foldingStartMarker: '' # A regular expression that checks for the start of a foldable area (such as `{`).
 foldingStopMarker: '' # A regular expression that checks for the end of a foldable area (such as `}`). If both folding markers are matched in the same line, there will be no foldable area.
 patterns: [ # An array of individual pattern declarations.
+  {
+    'match': '\\bdef\\b'
+    'name': 'constant.language.dedukti'
+  }
+  {
+    'match': '\\bthm\\b'
+    'name': 'entity.name.function.dedukti'
+  }
+  {
+    'match': '\\bType\\b'
+    'name': 'entity.name.type.dedukti'
+  }
+  {
+    'match': '\\.'
+    'name': 'entity.name.tag.dedukti'
+  }
+  {
+      'match': '-->'
+      'name': 'entity.name.function.dedukti'
+  }
+  {
+      'match': '->'
+      'name': 'constant.numeric.dedukti'
+  }
+  {
+    'begin': '\\(;'
+    'captures':
+      '0':
+        'name': 'punctuation.definition.comment.dedukti'
+    'end': '\\;\\)'
+    'name': 'comment.line.dedukti'
+  }
 
 ]
