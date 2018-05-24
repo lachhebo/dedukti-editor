@@ -4,10 +4,10 @@ const Path = require('path')
 const {AutoLanguageClient} = require("atom-languageclient");
 
 class DeduktiLanguageClient extends AutoLanguageClient {
-  // The server is launched for .dk file.
+
   getGrammarScopes(){
     console.log('grammarscope');
-    return ['source.dedukti'];
+    return ['source.dedukti']; // The server is launched for .dk file.
   }
   getLanguageName(){
     console.log('languagename');
@@ -20,29 +20,30 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   startServerProcess () {
     console.log("start server");
+
+    //We create and open the view when the server is started
     this.deduktiEditorView = new dk.default(null, null, null, null, null, null, null);
-
     atom.workspace.open(this.deduktiEditorView);
-
 
     this.updateView(' (forall A : Prop, A -> A).');
 
     console.log(this.deduktiEditorView);
-
     console.log(dk.default);
+
     const command = './lptop.native';
     const args = [];
-    var projectPath = Path.join(Path.dirname(__dirname), 'resources');
+    var projectPath = Path.join(Path.dirname(__dirname), 'resources'); //We obtain the path of the location of the server
 
     const childProcess = ChildProcess.spawn(command, args, {
       cwd: projectPath
-    });
+    }); // The process is launched
 
+    // We are handling errors with this notification
     childProcess.on("error", err =>
       atom.notifications.addError("Unable to start the Dedukti language server.", {
         dismissable: true,
         description:
-        "Please make sure you've followed the INstallation section in the README"
+        "Please make sure you've followed the Installation section in the README"
       })
     );
 
@@ -54,6 +55,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   deactivate() {
     console.log("trying to shutdown the server");
+    // We are closing the wiew when the server exit
     atom.workspace.open(this.deduktiEditorView); // should close the Proof Panel
     return Promise.race([super.deactivate(), this.createTimeoutPromise(2000)]);
   }
@@ -76,7 +78,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 }
 */
 
-  preInitialization(connection) {
+  preInitialization(connection) { // We add our two new commands
     connection.onCustom('ProofAssistant/Showcheckedfile',
     (e) => {
       this.apply_check_file(e);

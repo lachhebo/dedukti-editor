@@ -2,15 +2,12 @@
 class DeduktiEditorView {
 
 constructor(proof, focus, list_of_proof, list_of_hypothesis, current_objective, array_hypo, array_proof) {
+
+        // It's just a simple web page created using the DOM API.
+        
        // Create root element
        this.element = document.createElement('div');
        this.element.classList.add('dedukti-editor');
-       /*
-        this.titre = document.createElement('h1');
-        this.titre.textContent = 'Proof Helper';
-        //proof.classList.add('proof');
-        this.element.appendChild(this.titre);
-        */
 
         this.proof = document.createElement('h2');
         this.proof.textContent = 'Goals';
