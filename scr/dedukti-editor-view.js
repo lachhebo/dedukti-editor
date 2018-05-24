@@ -1,10 +1,10 @@
 
 class DeduktiEditorView {
 
-constructor(proof, focus, list_of_proof, list_of_hypothesis, current_objective, array_hypo, array_proof) {
+  constructor(proof, focus, list_of_proof, list_of_hypothesis, current_objective, array_hypo, array_proof) {
 
         // It's just a simple web page created using the DOM API.
-        
+
        // Create root element
        this.element = document.createElement('div');
        this.element.classList.add('dedukti-editor');
@@ -23,16 +23,17 @@ constructor(proof, focus, list_of_proof, list_of_hypothesis, current_objective, 
         this.list_of_hypothesis = document.createElement('ul');
         this.element.appendChild(this.list_of_hypothesis);
 
-        //const barre_element;
+        this.bar = document.createElement('hr')
+        this.element.appendChild(this.bar);
 
         this.current_objective = document.createElement('p');
         this.element.appendChild(this.current_objective);
 
-
+        // The array we need to store the element we are going to create :
         this.array_hypo = new Array();
         this.array_proof = new Array();
 
-        //var ss = document.styleSheets;
+        //The style modification we implement :
         console.log(this.element.style);
 
         this.proof.style.paddingLeft = '40%';
@@ -45,30 +46,15 @@ constructor(proof, focus, list_of_proof, list_of_hypothesis, current_objective, 
         this.focus.style.backgroundColor = 'white'
         this.focus.style.color = 'black'
 
-        //this.element.style.border = '2';
-        //this.proof.style.padding = '2px';
-
-        //this.focus.style
-
-        //console.log(ss);
-
-
-        /*
-        var heading = document.createElement("h1");
-        var heading_text = document.createTextNode("Proof Helper");
-        heading.appendChild(heading_text);
-        document.body.appendChild(heading);
-        */
-
   }
 
-// Returns an object that can be retrieved when package is activated
-serialize() {}
+  // Returns an object that can be retrieved when package is activated
+  serialize() {}
 
-// Tear down any state and detach
-destroy() {
-this.element.remove();
-}
+  // Tear down any state and detach
+  destroy() {
+  this.element.remove();
+  }
 
   addSubProof(subproof_string){
     var subproof =  document.createElement('li');

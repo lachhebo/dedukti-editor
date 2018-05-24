@@ -1,0 +1,36 @@
+{
+  "WhichProover":{
+    "type": "string",
+    "default": "dedukti",
+    "enum": ["coq", "dedukti", "isabelle"]
+  },
+  "DeduktiSettings":{
+    "type": "object",
+    "properties":{
+      "UseMyOwnServer":{
+        "type": "boolean",
+        "default" : false
+      },
+      "nameOfServer":{
+        "type": "string",
+        "default": "lptop"
+      },
+      "pathToMyServer":{
+        "type": "string",
+        "default": "/home/isma/github/dedukti-editor/resources"
+      },
+      "commandToLaunchIt":{
+        "type": "string",
+        "default": "./lptop.native"
+      },
+      "optionnal_arg":{
+        "type": "array",
+        "default": []
+      },
+      "LanguageName":{
+        "type": "string",
+        "default": "Dedukti"
+      }
+    }
+  }
+}
