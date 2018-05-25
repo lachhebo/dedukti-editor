@@ -1,6 +1,6 @@
 {
   "name": "dedukti-editor",
-  "main": "scr/main.js",
+  "main": "src/main.js",
   "version": "0.1.1",
   "description": "A IDE for lambdapi (Dedukti)",
   "repository": "https://github.com/lachhebo/dedukti-editor",

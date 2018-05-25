@@ -15,7 +15,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   constructor () {
     super()
-    this.config = require('./config.json')
+    atom.config.set('core.debugLSP', true);
+    this.config = require('./config.json');
   }
 
   getGrammarScopes(){
