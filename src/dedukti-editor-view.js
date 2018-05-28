@@ -34,7 +34,7 @@ class DeduktiEditorView {
         this.array_proof = new Array();
 
         //The style modification we implement :
-        console.log(this.element.style);
+        //console.log(this.element.style);
 
         this.proof.style.paddingLeft = '40%';
         this.proof.style.paddingRight = '50%';

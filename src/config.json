@@ -13,15 +13,15 @@
       },
       "nameOfServer":{
         "type": "string",
-        "default": "lptop.native"
+        "default": "lplsp"
       },
       "pathToMyServer":{
         "type": "string",
-        "default": "/home/isma/github/dedukti-editor/resources"
+        "default": ""
       },
       "commandToLaunchIt":{
         "type": "string",
-        "default": "./lptop.native"
+        "default": "./lplsp"
       },
       "optionnal_arg":{
         "type": "array",
