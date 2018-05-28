@@ -3,14 +3,13 @@ const os = require("os");
 const ChildProcess = require("child_process");
 const Path = require("path");
 const fs = require("fs");
-const {AutoLanguageClient} = require("atom-languageclient");
+const {AutoLanguageClient, DownloadFile} = require("atom-languageclient");
 //const convert_uri = require("./convert.js");
 
 /* I think the extension should automaticallt install the right server
-const serverDownloadUrl =
-"http://download.eclipse.org/jdtls/milestones/0.14.0/jdt-language-server-0.14.0-201802282111.tar.gz"
-const serverDownloadSize = 35873467
-const bytesToMegabytes = 1024 * 1024
+const serverDownloadUrl = 'http://download.eclipse.org/jdtls/milestones/0.14.0/jdt-language-server-0.14.0-201802282111.tar.gz'
+const serverDownloadSize = 35873467;
+const bytesToMegabytes = 1024 * 1024;
 */
 
 class DeduktiLanguageClient extends AutoLanguageClient {
@@ -33,7 +32,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     else if (atom.config.get("dedukti-editor.WhichProover") === "isabelle") {
       return ["source.isabelle"];
     }
-
   };
 
   getLanguageName(){
@@ -202,7 +200,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return fs.existsSync(path_tested);
   };
 
-  /*
+/*
   installServer (serverHome) {
     const localFileName = path.join(serverHome, "download.tar.gz")
     const decompress = require("decompress")
@@ -216,7 +214,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       .then(() => this.updateInstallStatus("installed"))
       .then(() => fs.unlinkSync(localFileName))
   }
-  */
+*/
+
 }
 
 module.exports = new DeduktiLanguageClient();
