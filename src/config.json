@@ -13,7 +13,7 @@
       },
       "nameOfServer":{
         "type": "string",
-        "default": "lptop"
+        "default": "lptop.native"
       },
       "pathToMyServer":{
         "type": "string",

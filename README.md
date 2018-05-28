@@ -27,5 +27,4 @@ Finally, you need the lptop.native program :
 
 ## State :
 
-When atom is detecting a file with a .dk extension, he is launching the server, But nothing else
-happens.
+To debug, open a developper console (Ctrl+Shift+I) and set the filter to verbose.

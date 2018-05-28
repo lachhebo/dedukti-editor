@@ -2,12 +2,11 @@ const dk = require('./dedukti-editor-view');
 const ChildProcess = require("child_process");
 const Path = require('path')
 const {AutoLanguageClient} = require("atom-languageclient");
+//const convert_uri = require("./convert.js");
 
 /* I think the extension should automaticallt install the right server
 const serverDownloadUrl = 'http://download.eclipse.org/jdtls/milestones/0.14.0/jdt-language-server-0.14.0-201802282111.tar.gz'
 const serverDownloadSize = 35873467
-const serverLauncher = '/plugins/org.eclipse.equinox.launcher_1.5.0.v20180119-0753.jar'
-const minJavaRuntime = 1.8
 const bytesToMegabytes = 1024 * 1024
 */
 
@@ -16,6 +15,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   constructor () {
     super()
     atom.config.set('core.debugLSP', true);
+    console.log(atom.workspace.getTextEditors());
     this.config = require('./config.json');
   }
 
@@ -29,12 +29,23 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     }
 
   }
+
   getLanguageName(){
     console.log('languagename');
     return  atom.config.get('dedukti-editor.DeduktiSettings.LanguageName');;
   }
+
   getServerName(){
     console.log('servername');
+    /*
+    let result = atom.workspace.getTextEditors();
+    let i =0;
+    let alpha = "";
+    for(i=0;i<result.length;i++){
+      alpha = console.log(result[i].getPath());
+      console.log(pathToUri(alpha));
+    }
+    */
     return  atom.config.get('dedukti-editor.DeduktiSettings.nameOfServer');
   }
 
@@ -112,6 +123,15 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     this.deduktiEditorView.addSubProof(e);
   }
 
+  /*
+  static pathToUri(filePath) {
+      let newPath = filePath.replace(/\\/g, '/');
+      if (newPath[0] !== '/') {
+          newPath = `/${newPath}`;
+      }
+      return encodeURI(`file://${newPath}`).replace(/[?#]/g, encodeURIComponent);
+  }
+  */
 
   command1(){
     console.log("the key binding was activated");
@@ -156,11 +176,31 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return this.isServerInstalled(serverHome)
       .then(doesExist => { if (!doesExist) return this.installServer(serverHome) })
   }
+  */
 
-  isServerInstalled (serverHome) {
-    return this.fileExists(path.join(serverHome, serverLauncher))
+/*
+  isServerInstalled(serverHome) {
+    return this.fileExists(path.join(serverHome, atom.config.get('dedukti-editor.DeduktiSettings.nameOfServer')) )
   }
+*/
 
+/*
+
+  findServer(){
+    var packagePath = Path.join($ATOM_HOME, '.atom','packages','dedukti-editor');
+    if(this.fileExists(packagePath, atom.config.get('dedukti-editor.DeduktiSettings.nameOfServer'))){
+        return packagePath;
+    }
+    else if (this.fileExists(packagePath, atom.config.get('dedukti-editor.DeduktiSettings.nameOfServer'))){
+      return Path.join(packagePath);
+    }
+
+
+
+  }
+  /*
+
+  
   installServer (serverHome) {
     const localFileName = path.join(serverHome, 'download.tar.gz')
     const decompress = require('decompress')
@@ -174,11 +214,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       .then(() => this.updateInstallStatus('installed'))
       .then(() => fs.unlinkSync(localFileName))
   }
-
-
-
   */
-
 }
 
 module.exports = new DeduktiLanguageClient();
