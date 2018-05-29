@@ -196,7 +196,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       atom.notifications.addError("Unable to find the "+atom.config.get("dedukti-editor.DeduktiSettings.nameOfServer")+" language server.", {
         dismissable: true,
         description:
-        "Please make sure the link you've put in the package folder (or resource, or src) is working"
+        "Please make sure the link you've put in the dedukti-editor folder is working (not broken), \n - try to create a new symlink (see README), \n - make sure the symlink is called lplsp"
       })
     }
   };
