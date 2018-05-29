@@ -12,19 +12,17 @@ apm install atom-ide-ui
 
 Then you need to clone this package
   - Open a terminal
-  - go in the package folder
+  - cd <where dedukti-editor is installed>
   - run the command :
 
 ```
 apm link
 ```
 
-Finally, you need the lptop.native program :
-  - install it on your machine
-  - then go to the setting view, on installed packages
-  - go to dedukti-editor
-  - indicate where your server (lptop) is installed.
+Finally, you need the lplsp program :
+  - the installation rules are here :
+  - put the binary file of lplsp on the folder resources of dedukti-editor
 
-## State :
+## Debug :
 
 To debug, open a developper console (Ctrl+Shift+I) and set the filter to verbose.
