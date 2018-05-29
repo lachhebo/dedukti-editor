@@ -20,7 +20,7 @@ apm link
 ```
 
 Finally, you need the lplsp program :
-  - the installation rules are here :
+  - the installation rules are here : https://github.com/ejgallego/lambdapi/tree/plof/plof
   - put the binary file of lplsp on the folder resources of dedukti-editor
 
 ## Debug :
