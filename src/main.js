@@ -110,8 +110,16 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
     super.captureServerErrors(childProcess, projectPath)
     //console.log(childProcess);
-    return childProcess;
 
+    //console.log(this.pathToUri('/home/isma/github/dedukti-editor/resources/test.dk'));
+
+    return childProcess;
+    /*
+    const startServer = require.resolve('../server_js')
+    return super.spawnChildNode([startServer, '--node-ipc'], {
+      stdio: [null, null, null, 'ipc']
+    })
+    */
   };
 
   preInitialization(connection) { // We add our two new commands
@@ -134,6 +142,29 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       color the ColorSPan.rangeSpan of the buffer with the color
       of ColorSpan.intColor
     */
+    /*
+    Content-Length : number \r\n
+    \r\n
+    {
+    "jsonrpc": "2.0"
+    "method": "ProofAssistant/Showcheckedfile",
+    "params" :
+    {
+    uri: DocumentUri
+    ColorSpan[]
+    }
+    }
+
+    ColorSpan =
+    {
+    Range : array,
+    intColor : number
+    }
+
+    1 if false
+    2 if good
+    3 if unchecked
+    */
 
 
   };
@@ -150,7 +181,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     this.deduktiEditorView.addSubProof(e);
   };
 
-  /*
   static pathToUri(filePath) {
       let newPath = filePath.replace(/\\/g, "/");
       if (newPath[0] !== "/") {
@@ -158,7 +188,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       }
       return encodeURI(`file://${newPath}`).replace(/[?#]/g, encodeURIComponent);
   }
-  */
 
   command1(){
     //console.log("the key binding was activated");
