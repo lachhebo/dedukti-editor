@@ -16,15 +16,16 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   constructor () {
     super();
-    atom.config.set("core.debugLSP", true);
+    atom.config.set("core.debugLSP", true); // We activate the debug functionnality
     ////console.log(atom.workspace.getTextEditors());
     this.config = require("./config.json");
   };
 
   getGrammarScopes(){
-    //console.log("grammarscope");
+    //The plan is to use this extension with other PA, not just dedukti.
+    return ["source.dedukti"];  // The server is launched for .dk file.
+    /*
     if(atom.config.get("dedukti-editor.WhichProover") === "dedukti"){
-      return ["source.dedukti"]; // The server is launched for .dk file.
     }
     else if (atom.config.get("dedukti-editor.WhichProover") === "coq") {
       return ["source.coq"];
@@ -32,15 +33,15 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     else if (atom.config.get("dedukti-editor.WhichProover") === "isabelle") {
       return ["source.isabelle"];
     }
+    */
   };
 
   getLanguageName(){
-    //console.log("languagename");
+    //we choose the language name
     return  atom.config.get("dedukti-editor.DeduktiSettings.LanguageName");;
   };
 
   getServerName(){
-    //console.log("servername");
     /*
     let result = atom.workspace.getTextEditors();
     let i =0;
@@ -50,11 +51,11 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       console.log(pathToUri(alpha));
     }
     */
+    //Same here
     return  atom.config.get("dedukti-editor.DeduktiSettings.nameOfServer");
   };
 
   startServerProcess () {
-    //console.log("start server");
 
     //We create and open the view when the server is started
     this.deduktiEditorView = new dk.default(null, null, null, null, null, null, null);
@@ -68,25 +69,25 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     atom.commands.add("atom-workspace",
       {"dedukti-editor:command3": () => this.command3()})
 
-    //this.updateView(" (forall A : Prop, A -> A).");
-
     // We are creating the data we need;
     var command = "";
     var args = []
     var projectPath = "";
 
-    if(atom.config.get("dedukti-editor.DeduktiSettings.UseMyOwnServer") == false){
+    if(atom.config.get("dedukti-editor.DeduktiSettings.UseMyOwnServer") == false){ //do you use your own server
       if(atom.config.get("dedukti-editor.WhichProover") === "dedukti"){ // if dedukti server is needed
          command = "./lplsp";
          args = []
          projectPath = this.CheckServerPath();
       }
+      /*
       else if(atom.config.get("dedukti-editor.WhichProover") === "coq"){ // if coq server is needed
         // To implement
       }
       else if(atom.config.get("dedukti-editor.WhichProover") === "isabelle"){ // if isabelle server is needed
         //To implement
       }
+      */
     }
     else{
       projectPath = atom.config.get("dedukti-editor.DeduktiSettings.pathToMyServer");
@@ -133,6 +134,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       color the ColorSPan.rangeSpan of the buffer with the color
       of ColorSpan.intColor
     */
+
+
   };
 
   updateView(e){
@@ -190,7 +193,11 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       return Path.join(Path.dirname(__dirname),"resources");
     }
     else{
-      throw 'need to install the server';
+      atom.notifications.addError("Unable to find the "+atom.config.get("dedukti-editor.DeduktiSettings.nameOfServer")+" language server.", {
+        dismissable: true,
+        description:
+        "Please make sure the link you've put in the package folder (or resource, or src) is working"
+      })
     }
   };
 

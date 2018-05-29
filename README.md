@@ -12,7 +12,7 @@ apm install atom-ide-ui
 
 Then you need to clone this package
   - Open a terminal
-  - cd <where dedukti-editor is installed>
+  - go in the folder where this repository was cloned.
   - run the command :
 
 ```
@@ -21,7 +21,17 @@ apm link
 
 Finally, you need the lplsp program :
   - the installation rules are here : https://github.com/ejgallego/lambdapi/tree/plof/plof
-  - put the binary file of lplsp on the folder resources of dedukti-editor
+  - put the binary file of lplsp on the folder dedukti-editor
+
+#Warning :
+
+Make sure the symlink of lslsp is not broken, if it's broken, you need to  :
+- go to the folder of lambdapi/\__build/default/plof,
+- create a new symlink of the lplsp.exe file
+- rename the symlink lplsp
+- put the symlink on the dedukti-editor folder
+
+
 
 ## Debug :
 
