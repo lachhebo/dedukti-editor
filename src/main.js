@@ -4,6 +4,14 @@ const ChildProcess = require("child_process");
 const Path = require("path");
 const fs = require("fs");
 const {AutoLanguageClient, DownloadFile} = require("atom-languageclient");
+const linter_push_v2_adapter_2 = require("./ProofAdapter");
+const linter_push_v2_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/linter-push-v2-adapter");
+const apply_edit_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/apply-edit-adapter");
+const notifications_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/notifications-adapter");
+const document_sync_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/document-sync-adapter");
+const logging_console_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/logging-console-adapter");
+const signature_help_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/signature-help-adapter");
+//const linter_push_v2_adapter_1 = require("./ProofAdapter");
 //const convert_uri = require("./convert.js");
 
 /* I think the extension should automaticallt install the right server
@@ -59,7 +67,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
     //We create and open the view when the server is started
     this.deduktiEditorView = new dk.default(null, null, null, null, null, null, null);
-    atom.workspace.open(this.deduktiEditorView);
+    //atom.workspace.open(this.deduktiEditorView);
 
     // We are creating new key binding :
     atom.commands.add("atom-workspace",
@@ -122,6 +130,50 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     */
   };
 
+  startExclusiveAdapters(server) {
+      apply_edit_adapter_1.default.attach(server.connection);
+      notifications_adapter_1.default.attach(server.connection, this.name, server.projectPath);
+      if (document_sync_adapter_1.default.canAdapt(server.capabilities)) {
+          server.docSyncAdapter =
+              new document_sync_adapter_1.default(server.connection, (editor) => this.shouldSyncForEditor(editor, server.projectPath), server.capabilities.textDocumentSync);
+          server.disposable.add(server.docSyncAdapter);
+      }
+      server.linterPushV2 = new linter_push_v2_adapter_1.default(server.connection);
+      server.linterPushV2_Diagnostics = new linter_push_v2_adapter_2.default(server.connection);
+
+      if (this._linterDelegate != null) {
+          server.linterPushV2_Diagnostics.attach(this._linterDelegate);
+      }
+      server.disposable.add(server.linterPushV2);
+      server.loggingConsole = new logging_console_adapter_1.default(server.connection);
+      if (this._consoleDelegate != null) {
+          server.loggingConsole.attach(this._consoleDelegate({ id: this.name, name: 'abc' }));
+      }
+      server.disposable.add(server.loggingConsole);
+      if (signature_help_adapter_1.default.canAdapt(server.capabilities)) {
+          server.signatureHelpAdapter = new signature_help_adapter_1.default(server, this.getGrammarScopes());
+          if (this._signatureHelpRegistry != null) {
+              server.signatureHelpAdapter.attach(this._signatureHelpRegistry);
+          }
+          server.disposable.add(server.signatureHelpAdapter);
+      }
+  }
+
+
+  // Linter push v2 API via LS publishDiagnostics
+  consumeLinterV2(registerIndie) {
+      this._linterDelegate = registerIndie({ name: this.name });
+      if (this._linterDelegate == null) {
+          return;
+      }
+      for (const server of this._serverManager.getActiveServers()) {
+          if (server.linterPushV2_Diagnostics != null) {
+              server.linterPushV2_Diagnostics.attach(this._linterDelegate);
+          }
+      }
+  }
+
+
   preInitialization(connection) { // We add our two new commands
     this.connect_server = connection;
     connection.onCustom("ProofAssistant/Showcheckedfile",
@@ -132,7 +184,17 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     (e) => {
       this.updateView(e);
     });
+    /*
+    console.log("preInitialization ismael")
+    this._diagnosticMap = new Map();
+    this._diagnosticCodes = new Map();
+    this._indies = new Set();
+    connection.onPublishDiagnostics( (e) => {
+        this.captureDiagnostics(e);
+      });
+    */
   };
+
 
   apply_check_file (e) {
     // To implement
@@ -192,6 +254,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   command1(){
     //console.log("the key binding was activated");
     //send a custom Notification
+    //console.log(this._serverManager);
     this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey1",[]);
     //console.log("humm it seems to be launched");
   };
@@ -207,7 +270,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     //send a custom Notification
     this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey3",[]);
   };
-
 
   //atom.workspace.hide(this.deduktiEditorView); // should close the Proof Panel
 
@@ -236,21 +298,21 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return fs.existsSync(path_tested);
   };
 
-/*
-  installServer (serverHome) {
-    const localFileName = path.join(serverHome, "download.tar.gz")
-    const decompress = require("decompress")
-    return this.fileExists(serverHome)
-      .then(doesExist => { if (!doesExist) fs.mkdirSync(serverHome) })
-      .then(() => DownloadFile(serverDownloadUrl, localFileName, (bytesDone, percent) => this.updateInstallStatus(`downloading ${Math.floor(serverDownloadSize / bytesToMegabytes)} MB (${percent}% done)`), serverDownloadSize))
-      .then(() => this.updateInstallStatus("unpacking"))
-      .then(() => decompress(localFileName, serverHome))
-      .then(() => this.fileExists(path.join(serverHome, serverLauncher)))
-      .then(doesExist => { if (!doesExist) throw Error(`Failed to install the ${this.getServerName()} language server`) })
-      .then(() => this.updateInstallStatus("installed"))
-      .then(() => fs.unlinkSync(localFileName))
-  }
-*/
+  /*
+    installServer (serverHome) {
+      const localFileName = path.join(serverHome, "download.tar.gz")
+      const decompress = require("decompress")
+      return this.fileExists(serverHome)
+        .then(doesExist => { if (!doesExist) fs.mkdirSync(serverHome) })
+        .then(() => DownloadFile(serverDownloadUrl, localFileName, (bytesDone, percent) => this.updateInstallStatus(`downloading ${Math.floor(serverDownloadSize / bytesToMegabytes)} MB (${percent}% done)`), serverDownloadSize))
+        .then(() => this.updateInstallStatus("unpacking"))
+        .then(() => decompress(localFileName, serverHome))
+        .then(() => this.fileExists(path.join(serverHome, serverLauncher)))
+        .then(doesExist => { if (!doesExist) throw Error(`Failed to install the ${this.getServerName()} language server`) })
+        .then(() => this.updateInstallStatus("installed"))
+        .then(() => fs.unlinkSync(localFileName))
+    }
+  */
 
 }
 
