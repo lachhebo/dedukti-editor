@@ -1,9 +1,4 @@
 {
-  "WhichProover":{
-    "type": "string",
-    "default": "dedukti",
-    "enum": ["coq", "dedukti", "isabelle"]
-  },
   "DeduktiSettings":{
     "type": "object",
     "properties":{
