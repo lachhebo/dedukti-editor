@@ -32,6 +32,13 @@ Make sure the symlink of lslsp is not broken, if it's broken, you need to  :
 - put the symlink on the dedukti-editor folder
 
 
+Clearly : open a terminal on the dedukti-editor folder and write : 
+
+```
+ln -s **Pathtothelambdapifolder**/lambdapi/_build/default/lp-lsp/lp_lsp.exe lplsp
+
+```
+
 ## Debug :
 
 To debug, open a developper console (Ctrl+Shift+I) and set the filter to verbose.
