@@ -25,14 +25,14 @@ Finally, you need the lplsp program :
 
 ## Warning :
 
-Make sure the symlink of lslsp is not broken, if it's broken, you need to  :
+Make sure the symlink of lplsp is not broken, if it's broken, you need to  :
 - go to the folder of lambdapi/\__build/default/plof,
 - create a new symlink of the lplsp.exe file
 - rename the symlink lplsp
 - put the symlink on the dedukti-editor folder
 
 
-Clearly : open a terminal on the dedukti-editor folder and write : 
+Or : open a terminal on the dedukti-editor folder and write :
 
 ```
 ln -s **Pathtothelambdapifolder**/lambdapi/_build/default/lp-lsp/lp_lsp.exe lplsp
