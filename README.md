@@ -21,18 +21,8 @@ apm link
 
 Finally, you need the lplsp program :
   - the installation rules are here : https://github.com/ejgallego/lambdapi/tree/plof/plof
-  - put the binary file of lplsp on the folder dedukti-editor
 
-## Warning :
-
-Make sure the symlink of lplsp is not broken, if it's broken, you need to  :
-- go to the folder of lambdapi/\__build/default/plof,
-- create a new symlink of the lplsp.exe file
-- rename the symlink lplsp
-- put the symlink on the dedukti-editor folder
-
-
-Or : open a terminal on the dedukti-editor folder and write :
+open a terminal on the dedukti-editor folder and run the command :
 
 ```
 ln -s **Pathtothelambdapifolder**/lambdapi/_build/default/lp-lsp/lp_lsp.exe lplsp

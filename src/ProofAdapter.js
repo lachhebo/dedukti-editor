@@ -10,8 +10,6 @@ class LinterPushV2Adapter {
         this._diagnosticMap = new Map();
         this._diagnosticCodes = new Map();
         this._indies = new Set();
-        //this.marker_color = new Array();
-        //console.log("les markers (constructor): ", this.marker_color);
         connection.onPublishDiagnostics(this.captureDiagnostics.bind(this));
     }
 
@@ -68,11 +66,9 @@ class LinterPushV2Adapter {
             );
             marker.setProperties({persistent:false, invalidate:'touch'}); //The color is diseappearing when 'touch'
             let decoration = editor.decorateMarker(marker, {type: 'text', class:'Completed_lines'});
-            //this.marker_color.push(marker); //We keep in memory which marker we have added.
           }
           else { // Hence, in red
             messaged_displayed.push(messages[i]); //
-
             var marker = editor.markScreenRange(
               [ [
                   messages[i].location.position.start.row,
@@ -86,7 +82,6 @@ class LinterPushV2Adapter {
             );
             marker.setProperties({persistent:false, invalidate:'touch'}); //The color disappears when 'touch'
             let decoration = editor.decorateMarker(marker, {type: 'text', class:'Failed_line'});
-            //this.marker_color.push(marker); //We keep in memory which marker we have added.
           }
         }
 
