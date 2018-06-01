@@ -1,3 +1,5 @@
+"use strict";
+
 const dk = require("./dedukti-editor-view");
 const linter_push_v2_adapter_2 = require("./ProofAdapter");
 const os = require("os");
@@ -39,7 +41,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   startServerProcess () {
     //We create and open the view when the server is started
     this.deduktiEditorView = new dk.default(null, null, null, null, null, null, null);
-    atom.workspace.open(this.deduktiEditorView);
+    //atom.workspace.open(this.deduktiEditorView);
 
     // We are creating new key binding :
     atom.commands.add("atom-workspace",
@@ -99,7 +101,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
           server.linterPushV2_Diagnostics.attach(this._linterDelegate);
       }
       server.disposable.add(server.linterPushV2);
-      server.linterPushV2_Diagnostics = new linter_push_v2_adapter_2.default(server.connection);
+      server.disposable.add(server.linterPushV2_Diagnostics);
       // until here
       server.loggingConsole = new logging_console_adapter_1.default(server.connection);
       if (this._consoleDelegate != null) {
@@ -174,7 +176,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     let path_tested = Path.join(serverHome, atom.config.get("dedukti-editor.DeduktiSettings.nameOfServer"));
     return fs.existsSync(path_tested);
   };
-  
+
 }
 
 module.exports = new DeduktiLanguageClient();
