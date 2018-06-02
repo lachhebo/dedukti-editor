@@ -2,31 +2,28 @@
 
 ## Installation
 
-First, make sure you have Atom 1.19+ installed.
+You need Atom >= 1.19.
 
-Install atom-ide-ui from "Install" in Atom's settings or run:
+### Atom Dependencies:
 
+Install `atom-ide-ui` from "Install" in Atom's settings or run:
 ```
-apm install atom-ide-ui
-```
-
-Then you need to clone this package
-  - Open a terminal
-  - go in the folder where this repository was cloned.
-  - run the command :
-
-```
-apm link
+$ apm install atom-ide-ui
 ```
 
-Finally, you need the lplsp program :
-  - the installation rules are here : https://github.com/ejgallego/lambdapi/tree/plof/plof
-
-open a terminal on the dedukti-editor folder and run the command :
-
+Then you need to clone and install this package:
 ```
-ln -s **Pathtothelambdapifolder**/lambdapi/_build/default/lp-lsp/lp_lsp.exe lplsp
+$ git clone https://github.com/lachhebo/dedukti-editor.git
+$ cd dedukti-editor
+$ apm link
+```
 
+### Installing the Dedukti Language Server:
+
+The easiest method is to use the [OPAM](https://opam.ocaml.org/) package manager:
+```
+$ opam repository add deducteam https://scm.gforge.inria.fr/anonscm/git/opam-deducteam/opam-deducteam.git
+$ opam install lambdapi-lsp
 ```
 
 ## Debug :

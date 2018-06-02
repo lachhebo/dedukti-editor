@@ -2,29 +2,13 @@
   "DeduktiSettings":{
     "type": "object",
     "properties":{
-      "UseMyOwnServer":{
-        "type": "boolean",
-        "default" : false
-      },
-      "nameOfServer":{
+      "lspServerPath": {
         "type": "string",
-        "default": "lplsp"
+        "default": "lp-lsp"
       },
-      "pathToMyServer":{
-        "type": "string",
-        "default": ""
-      },
-      "commandToLaunchIt":{
-        "type": "string",
-        "default": "./lplsp"
-      },
-      "optionnal_arg":{
+      "lspServerArgs":{
         "type": "array",
         "default": []
-      },
-      "LanguageName":{
-        "type": "string",
-        "default": "Dedukti"
       }
     }
   }
