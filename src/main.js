@@ -35,9 +35,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     // Create the view.
     this.deduktiEditorView = new dk.default(null, null, null, null, null, null, null);
 
-    // Open the view?
-    // atom.workspace.open(this.deduktiEditorView);
-
   };
 
   getGrammarScopes(){
@@ -54,6 +51,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   startServerProcess () {
 
+    atom.workspace.open(this.deduktiEditorView);
+    
     var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
 
