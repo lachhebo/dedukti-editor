@@ -5,13 +5,6 @@ const linter_push_v2_adapter_2 = require("./ProofAdapter");
 const child_process = require("child_process");
 const {AutoLanguageClient, DownloadFile} = require("atom-languageclient");
 
-// We need those modules to override the Diagnostics Adapter :
-const linter_push_v2_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/linter-push-v2-adapter"); //this one
-const apply_edit_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/apply-edit-adapter");
-const notifications_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/notifications-adapter");
-const document_sync_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/document-sync-adapter");
-const logging_console_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/logging-console-adapter");
-const signature_help_adapter_1 = require("../node_modules/atom-languageclient/build/lib/adapters/signature-help-adapter");
 
 class DeduktiLanguageClient extends AutoLanguageClient {
 
@@ -19,9 +12,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
     super();
 
-    // Debug by default;
-    atom.config.set("core.debugLSP", true); // We activate the debug functionnality
-
+    atom.config.set("core.debugLSP", true);    // Debug by default;
     this.config = require("./config.json");
 
     // Create new keybindings:
@@ -32,9 +23,13 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     atom.commands.add("atom-workspace",
       {"dedukti-editor:command3": () => this.command3()})
 
-    // Create the view.
     this.deduktiEditorView = new dk.default(null, null, null, null, null, null, null);
+  };
 
+  exitCleanup() {
+    console.log("try to cleanup");
+    this._serverManager.terminate();
+    this.deduktiEditorView.destroy();
   };
 
   getGrammarScopes(){
@@ -49,10 +44,22 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return "lp-lsp";
   };
 
+  preInitialization(connection) { // The two new commands we should add to have a cleaner code
+    atom.workspace.open(this.deduktiEditorView);
+
+    this.connect_server = connection;
+    connection.onCustom("ProofAssistant/Showcheckedfile",
+    (e) => {
+      this.apply_check_file(e);
+    });
+    connection.onCustom("ProofAssistant/UpdateView",
+    (e) => {
+      this.updateView(e);
+    });
+  };
+
   startServerProcess () {
 
-    atom.workspace.open(this.deduktiEditorView);
-    
     var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
 
@@ -73,66 +80,21 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   };
 
   startExclusiveAdapters(server) { //We changes some parameters here to changes which adapters handle diagnostics.
-      apply_edit_adapter_1.default.attach(server.connection);
-      notifications_adapter_1.default.attach(server.connection, this.name, server.projectPath);
-      if (document_sync_adapter_1.default.canAdapt(server.capabilities)) {
-          server.docSyncAdapter =
-              new document_sync_adapter_1.default(server.connection, (editor) => this.shouldSyncForEditor(editor, server.projectPath), server.capabilities.textDocumentSync);
-          server.disposable.add(server.docSyncAdapter);
-      }
-      // Where we override the function frome here:
-      server.linterPushV2 = new linter_push_v2_adapter_1.default(server.connection);
-      server.linterPushV2_Diagnostics = new linter_push_v2_adapter_2.default(server.connection);
-
+      super.startExclusiveAdapters(server);
+      server.linterPushV2_Diagnostic = new linter_push_v2_adapter_2.default(server.connection);
       if (this._linterDelegate != null) {
-          server.linterPushV2_Diagnostics.attach(this._linterDelegate);
+          server.linterPushV2_Diagnostic.attach(this._linterDelegate);
       }
-      server.disposable.add(server.linterPushV2);
-      server.disposable.add(server.linterPushV2_Diagnostics);
-      // until here
-      server.loggingConsole = new logging_console_adapter_1.default(server.connection);
-      if (this._consoleDelegate != null) {
-          server.loggingConsole.attach(this._consoleDelegate({ id: this.name, name: 'abc' }));
-      }
-      server.disposable.add(server.loggingConsole);
-      if (signature_help_adapter_1.default.canAdapt(server.capabilities)) {
-          server.signatureHelpAdapter = new signature_help_adapter_1.default(server, this.getGrammarScopes());
-          if (this._signatureHelpRegistry != null) {
-              server.signatureHelpAdapter.attach(this._signatureHelpRegistry);
-          }
-          server.disposable.add(server.signatureHelpAdapter);
-      }
+      server.disposable.add(server.linterPushV2_Diagnostic);
+
   }
 
-  consumeLinterV2(registerIndie) { //We changes some parameters here to changes which adapters handle diagnostics.
-      this._linterDelegate = registerIndie({ name: this.name });
-      if (this._linterDelegate == null) {
-          return;
-      }
-      for (const server of this._serverManager.getActiveServers()) {
-          if (server.linterPushV2_Diagnostics != null) { // Our handler
-              server.linterPushV2_Diagnostics.attach(this._linterDelegate);
-          }
-      }
-  }
-
-  preInitialization(connection) { // The two new commands we should add to have a cleaner code
-    this.connect_server = connection;
-    connection.onCustom("ProofAssistant/Showcheckedfile",
-    (e) => {
-      this.apply_check_file(e);
-    });
-    connection.onCustom("ProofAssistant/UpdateView",
-    (e) => {
-      this.updateView(e);
-    });
-  };
 
   apply_check_file (e) {}; //The first command launch this function
   updateView(e){ this.deduktiEditorView.addSubProof(e); }; //The second command launch this function
 
   //In case the first key binding is activated
-  command1(){ this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey1",[]); };
+  command1(){ this.connect_server.didChangeTextDocument([]); };
 
   command2(){ this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey2",[]); };
 
