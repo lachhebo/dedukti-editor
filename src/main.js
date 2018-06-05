@@ -24,12 +24,12 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       {"dedukti-editor:command3": () => this.command3()})
 
     this.deduktiEditorView = new dk.default(null, null, null, null, null, null, null);
-  };
 
-  exitCleanup() {
-    console.log("try to cleanup");
-    this._serverManager.terminate();
-    this.deduktiEditorView.destroy();
+    /*
+      atom.workspace.hide(this.deduktiEditorView); // should close the Proof Panel
+      this.deduktiEditorView.destroy();
+    */
+
   };
 
   getGrammarScopes(){
@@ -44,7 +44,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return "lp-lsp";
   };
 
-  preInitialization(connection) { // The two new commands we should add to have a cleaner code
+  preInitialization(connection) {
     atom.workspace.open(this.deduktiEditorView);
 
     this.connect_server = connection;
@@ -63,6 +63,13 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
 
+    /* Debug for developper
+      var command_test = "./lplsp_test";
+      const childProcess = child_process.spawn(command_test, args,{
+        cwd: "/home/isma/Documents/dedukti-editor/src"
+      });
+
+    */
     // TODO: Use the `which` module to provide a better error in the case of a missing server.
     const childProcess = child_process.spawn(command, args);
 
@@ -73,6 +80,11 @@ class DeduktiLanguageClient extends AutoLanguageClient {
         description: "Please make sure you've followed the Installation section in the README and that the server is functional"
       })
     );
+
+    childProcess.on('exit', (code, signal) => {
+      atom.workspace.hide(this.deduktiEditorView);
+      this.deduktiEditorView.destroy();
+    });
 
     super.captureServerErrors(childProcess)
 
@@ -86,7 +98,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
           server.linterPushV2_Diagnostic.attach(this._linterDelegate);
       }
       server.disposable.add(server.linterPushV2_Diagnostic);
-
   }
 
 
@@ -100,7 +111,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   command3(){ this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey3",[]); };
 
-  //atom.workspace.hide(this.deduktiEditorView); // should close the Proof Panel
 
 }
 
