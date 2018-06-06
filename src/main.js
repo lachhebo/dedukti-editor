@@ -23,8 +23,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     atom.commands.add("atom-workspace",
       {"dedukti-editor:command3": () => this.command3()})
 
-    this.deduktiEditorView = new dk.default(null, null, null, null, null, null, null);
 
+    this.deduktiEditorView = new dk.default();
     /*
       atom.workspace.hide(this.deduktiEditorView); // should close the Proof Panel
       this.deduktiEditorView.destroy();
@@ -45,6 +45,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   };
 
   preInitialization(connection) {
+
     atom.workspace.open(this.deduktiEditorView);
 
     this.connect_server = connection;
@@ -63,12 +64,11 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
 
-    /* Debug for developper
+    /*// Debug for developper
       var command_test = "./lplsp_test";
       const childProcess = child_process.spawn(command_test, args,{
         cwd: "/home/isma/Documents/dedukti-editor/src"
       });
-
     */
     // TODO: Use the `which` module to provide a better error in the case of a missing server.
     const childProcess = child_process.spawn(command, args);
@@ -83,7 +83,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
     childProcess.on('exit', (code, signal) => {
       atom.workspace.hide(this.deduktiEditorView);
-      this.deduktiEditorView.destroy();
     });
 
     super.captureServerErrors(childProcess)

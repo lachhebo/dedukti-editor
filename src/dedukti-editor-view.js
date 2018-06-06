@@ -1,7 +1,7 @@
 
 class DeduktiEditorView {
 
-  constructor(proof, focus, list_of_proof, list_of_hypothesis, current_objective, array_hypo, array_proof) {
+  constructor() {
 
         // It's just a simple web page created using the DOM API.
 
