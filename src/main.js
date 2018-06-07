@@ -5,17 +5,16 @@ const linter_push_v2_adapter_2 = require("./ProofAdapter");
 const child_process = require("child_process");
 const {AutoLanguageClient, DownloadFile} = require("atom-languageclient");
 
-
 class DeduktiLanguageClient extends AutoLanguageClient {
 
-  constructor () {
+  constructor () {   /* At the opening of Atom */
 
     super();
 
     atom.config.set("core.debugLSP", true);    // Debug by default;
-    this.config = require("./config.json");
+    this.config = require("./config.json");  // To modify the configuration, check the setting view
 
-    // Create new keybindings:
+    //New keybindings:
     atom.commands.add("atom-workspace",
       {"dedukti-editor:command1": () => this.command1()})
     atom.commands.add("atom-workspace",
@@ -24,11 +23,23 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       {"dedukti-editor:command3": () => this.command3()})
 
 
-    this.deduktiEditorView = new dk.default();
-    /*
-      atom.workspace.hide(this.deduktiEditorView); // should close the Proof Panel
-      this.deduktiEditorView.destroy();
-    */
+    this.deduktiEditorView = new dk.default(); // We create the view
+
+    /* When a file is opened, this event function will be called  */
+    this._disposable.add(atom.workspace.onDidChangeActiveTextEditor((editor) => {
+        if(typeof editor != 'undefined'){ //In case the pane is not a file (like a setting view)
+          let scopeName = editor.getGrammar().scopeName
+          if(this.getGrammarScopes().includes(scopeName)){
+            atom.workspace.open(this.deduktiEditorView);
+          }
+          else{
+            atom.workspace.hide(this.deduktiEditorView);
+          }
+        }
+        else{
+          atom.workspace.hide(this.deduktiEditorView);
+        }
+    }));
 
   };
 
@@ -44,10 +55,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return "lp-lsp";
   };
 
-  preInitialization(connection) {
-
-    atom.workspace.open(this.deduktiEditorView);
-
+  preInitialization(connection) { //Two new commands have been added
     this.connect_server = connection;
     connection.onCustom("ProofAssistant/Showcheckedfile",
     (e) => {
@@ -64,31 +72,24 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
 
-    /*// Debug for developper
+    /* Debug for developper
       var command_test = "./lplsp_test";
       const childProcess = child_process.spawn(command_test, args,{
         cwd: "/home/isma/Documents/dedukti-editor/src"
       });
     */
-    // TODO: Use the `which` module to provide a better error in the case of a missing server.
-    const childProcess = child_process.spawn(command, args);
 
-    // We are handling errors with this notification
-    childProcess.on("error", err =>
-      atom.notifications.addError("Error starting the language server: " + command, {
-        dismissable: true,
-        description: "Please make sure you've followed the Installation section in the README and that the server is functional"
-      })
-    );
-
-    childProcess.on('exit', (code, signal) => {
-      atom.workspace.hide(this.deduktiEditorView);
-    });
-
-    super.captureServerErrors(childProcess)
-
+    //const childProcess = child_process.spawn(command, args);
     return childProcess;
   };
+
+  handleSpawnFailure(err) {
+    //TODO: Use the `which` module to provide a better error in the case of a missing server.
+    atom.notifications.addError("Error starting the language server: " + atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath"), {
+      dismissable: true,
+      description: "Please make sure you've followed the Installation section in the README and that the server is functional"
+    })
+  }
 
   startExclusiveAdapters(server) { //We changes some parameters here to changes which adapters handle diagnostics.
       super.startExclusiveAdapters(server);
@@ -99,7 +100,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       server.disposable.add(server.linterPushV2_Diagnostic);
   }
 
-
   apply_check_file (e) {}; //The first command launch this function
   updateView(e){ this.deduktiEditorView.addSubProof(e); }; //The second command launch this function
 
@@ -109,7 +109,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   command2(){ this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey2",[]); };
 
   command3(){ this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey3",[]); };
-
 
 }
 
