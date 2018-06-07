@@ -79,7 +79,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       });
     */
 
-    //const childProcess = child_process.spawn(command, args);
+    const childProcess = child_process.spawn(command, args);
     return childProcess;
   };
 
