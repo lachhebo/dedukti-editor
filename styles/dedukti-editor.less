@@ -6,14 +6,19 @@
 @import "ui-variables";
 @import "syntax-variables";
 
+
+
 .Completed_lines{
-  background-color: green;
+  background-color: @background-color-success;
+  color: @overlay-border-color;
 }
 
 .Failed_line{
-  background-color: #960018; //Carmine
+  background-color: @background-color-error;
+  color: @overlay-border-color;
 }
 
 .Cancelled_line{
-  background-color: #734A12; //Raw Umber
+  background-color: @background-color-warning;
+  color: @overlay-border-color;
 }

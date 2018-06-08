@@ -25,6 +25,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
     this.deduktiEditorView = new dk.default(); // We create the view
 
+    this.deduktiEditorView.initialise_exemple();
+
     /* When a file is opened, this event function will be called  */
     this._disposable.add(atom.workspace.onDidChangeActiveTextEditor((editor) => {
         if(typeof editor != 'undefined'){ //In case the pane is not a file (like a setting view)
@@ -61,7 +63,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     (e) => {
       this.apply_check_file(e);
     });
-    connection.onCustom("ProofAssistant/UpdateView",
+    connection.onCustom("ProofAssistant/ActiveGoals",
     (e) => {
       this.updateView(e);
     });
@@ -72,12 +74,12 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
 
-    /* Debug for developper
-      var command_test = "./lplsp_test";
-      const childProcess = child_process.spawn(command_test, args,{
-        cwd: "/home/isma/Documents/dedukti-editor/src"
-      });
-    */
+      /* Debug for developper (isma)
+    var command_test = "./lplsp_test";
+    const childProcess = child_process.spawn(command_test, args,{
+      cwd: "/home/isma/Documents/dedukti-editor/src"
+    });
+     // */
 
     const childProcess = child_process.spawn(command, args);
     return childProcess;
