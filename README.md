@@ -32,5 +32,5 @@ To debug, open a developper console (Ctrl+Shift+I) and set the filter to verbose
 
 ## ToDo : 
 
-- implemennt a new command to handle the view.
+- implement a new command to handle the view.
 - work on the view.
