@@ -1,7 +1,7 @@
 "use strict";
 
 const dk = require("./dedukti-editor-view");
-const linter_push_v2_adapter_2 = require("./ProofAdapter");
+const URL = require("url");
 const child_process = require("child_process");
 const {AutoLanguageClient, DownloadFile} = require("atom-languageclient");
 
@@ -25,10 +25,9 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
     this.deduktiEditorView = new dk.default(); // We create the view
 
-    this.deduktiEditorView.initialise_exemple();
+    //this.deduktiEditorView.initialise_exemple();
 
-    /* When a file is opened, this event function will be called  */
-    this._disposable.add(atom.workspace.onDidChangeActiveTextEditor((editor) => {
+    this._disposable.add(atom.workspace.observeActiveTextEditor((editor) => {
         if(typeof editor != 'undefined'){ //In case the pane is not a file (like a setting view)
           let scopeName = editor.getGrammar().scopeName
           if(this.getGrammarScopes().includes(scopeName)){
@@ -57,12 +56,113 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return "lp-lsp";
   };
 
-  preInitialization(connection) { //Two new commands have been added
-    this.connect_server = connection;
-    connection.onCustom("ProofAssistant/Showcheckedfile",
-    (e) => {
-      this.apply_check_file(e);
-    });
+
+  excludepositive(params){
+
+    var mydiagnostics = new Array();
+    let i;
+
+    for(i=0;i<params.diagnostics.length;i++){
+      if(params.diagnostics[i].message != "OK"){
+        mydiagnostics.push(params.diagnostics[i]);
+      }
+    }
+
+    return mydiagnostics;
+
+  }
+
+  uriToPath(uri) {
+      const url = URL.parse(uri);
+      if (url.protocol !== 'file:' || url.path === undefined) {
+          return uri;
+      }
+      let filePath = decodeURIComponent(url.path);
+      if (process.platform === 'win32') {
+          // Deal with Windows drive names
+          if (filePath[0] === '/') {
+              filePath = filePath.substr(1);
+          }
+          return filePath.replace(/\//g, '\\');
+      }
+      return filePath;
+  }
+
+
+  colorizebuffer(params){
+
+    let path = this.uriToPath(params.uri);
+    let i = 0;
+    let z = 0;
+    let text_editors = atom.workspace.getTextEditors(); //We get the good editor
+    let editor = "";
+    let j = 0;
+
+    for(j=0;j<text_editors.length;j++){
+      let text_editor_path = text_editors[j].getPath();
+      if(text_editor_path == path ){
+        editor = text_editors[j];
+      }
+    }
+
+    if (editor === "") {
+      //console.log("l'éditeur n'a pas été trouvé.")
+    }
+    else{
+      let marker_color = editor.findMarkers({persistent:false});
+      //console.log("les markers :", marker_color);
+      for(z=0;z<marker_color.length;z++){
+        marker_color[z].destroy();
+      }
+    }
+    // Then we put colors on those editors
+    for(i=0;i<params.diagnostics.length;i++){
+      if(params.diagnostics[i].message === "OK"){ // Hence Green
+        var marker = editor.markScreenRange(
+          [ [
+              params.diagnostics[i].range.start.line,
+              params.diagnostics[i].range.start.character
+            ],
+            [
+              params.diagnostics[i].range.end.line,
+              params.diagnostics[i].range.end.character
+            ]
+          ]
+        );
+        marker.setProperties({persistent:false, invalidate:'touch'}); //The color is diseappearing when 'touch'
+        let decoration = editor.decorateMarker(marker, {type: 'text', class:'Completed_lines'});
+      }
+      else { // Hence, in red
+        var marker = editor.markScreenRange(
+          [ [
+              params.diagnostics[i].range.start.line,
+              params.diagnostics[i].range.start.character
+            ],
+            [
+              params.diagnostics[i].range.end.line,
+              params.diagnostics[i].range.end.character
+            ]
+          ]
+        );
+        marker.setProperties({persistent:false, invalidate:'touch'}); //The color disappears when 'touch'
+        let decoration = editor.decorateMarker(marker, {type: 'text', class:'Failed_line'});
+      }
+    }
+  }
+
+  preInitialization(connection) { //Two new commands have been added or modified
+    connection.onPublishDiagnostics = function(callback) {
+      let mycallback = function(params){
+        console.log(params.diagnostics);
+        this.colorizebuffer(params);
+        let mydiagnostics = this.excludepositive(params);
+        params.diagnostics = mydiagnostics;
+        callback(params);
+      }
+      connection._onNotification({ method: 'textDocument/publishDiagnostics' }, mycallback.bind(module.exports));
+    }
+
+    this.connect_server = connection
     connection.onCustom("ProofAssistant/ActiveGoals",
     (e) => {
       this.updateView(e);
@@ -93,17 +193,14 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     })
   }
 
-  startExclusiveAdapters(server) { //We changes some parameters here to changes which adapters handle diagnostics.
-      super.startExclusiveAdapters(server);
-      server.linterPushV2_Diagnostic = new linter_push_v2_adapter_2.default(server.connection);
-      if (this._linterDelegate != null) {
-          server.linterPushV2_Diagnostic.attach(this._linterDelegate);
-      }
-      server.disposable.add(server.linterPushV2_Diagnostic);
-  }
 
   apply_check_file (e) {}; //The first command launch this function
-  updateView(e){ this.deduktiEditorView.addSubProof(e); }; //The second command launch this function
+  
+  updateView(e){
+
+    this.deduktiEditorView.updateSubProof(e);
+
+  }; //The second command launch this function
 
   //In case the first key binding is activated
   command1(){ this.connect_server.didChangeTextDocument([]); };
