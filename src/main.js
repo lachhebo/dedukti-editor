@@ -31,6 +31,9 @@ class DeduktiLanguageClient extends AutoLanguageClient {
         if(typeof editor != 'undefined'){ //In case the pane is not a file (like a setting view)
           let scopeName = editor.getGrammar().scopeName
           if(this.getGrammarScopes().includes(scopeName)){
+            this._disposable.add(editor.onDidChangeCursorPosition( (cursor) => {
+                //this.deduktiEditorView.updateView(cursor);
+            }));
             atom.workspace.open(this.deduktiEditorView);
           }
           else{
@@ -153,7 +156,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   preInitialization(connection) { //Two new commands have been added or modified
     connection.onPublishDiagnostics = function(callback) {
       let mycallback = function(params){
-        console.log(params.diagnostics);
+        //console.log(params.diagnostics);
         this.colorizebuffer(params);
         let mydiagnostics = this.excludepositive(params);
         params.diagnostics = mydiagnostics;
@@ -193,9 +196,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     })
   }
 
-
   apply_check_file (e) {}; //The first command launch this function
-  
+
   updateView(e){
 
     this.deduktiEditorView.updateSubProof(e);
