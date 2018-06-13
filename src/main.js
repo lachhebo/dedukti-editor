@@ -8,7 +8,6 @@ const {AutoLanguageClient, DownloadFile} = require("atom-languageclient");
 class DeduktiLanguageClient extends AutoLanguageClient {
 
   constructor () {   /* At the opening of Atom */
-
     super();
 
     atom.config.set("core.debugLSP", true);    // Debug by default;
@@ -22,11 +21,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     atom.commands.add("atom-workspace",
       {"dedukti-editor:command3": () => this.command3()})
 
-
     this.deduktiEditorView = new dk.default(); // We create the view
-
     //this.deduktiEditorView.initialise_exemple();
-
     this._disposable.add(atom.workspace.observeActiveTextEditor((editor) => {
         if(typeof editor != 'undefined'){ //In case the pane is not a file (like a setting view)
           let scopeName = editor.getGrammar().scopeName
@@ -44,36 +40,26 @@ class DeduktiLanguageClient extends AutoLanguageClient {
           atom.workspace.hide(this.deduktiEditorView);
         }
     }));
-
-  };
-
-  getGrammarScopes(){
-    return ["source.dedukti"];  // The server is launched for .dk file.
-  };
-
-  getLanguageName(){
-    return "Dedukti";
-  };
-
-  getServerName(){
-    return "lp-lsp";
   };
 
 
-  excludepositive(params){
-
-    var mydiagnostics = new Array();
-    let i;
-
-    for(i=0;i<params.diagnostics.length;i++){
-      if(params.diagnostics[i].message != "OK"){
-        mydiagnostics.push(params.diagnostics[i]);
-      }
-    }
-
-    return mydiagnostics;
-
+  startServer(projectPath) {
+     const homedir = require('os').homedir();
+     return super.startServer(homedir);
   }
+
+  shouldStartForEditor(editor) {
+      console.log("on regarde si on doit démarrer le server pour cet éditeur");
+      console.log(editor.getGrammar().scopeName);
+      return this.getGrammarScopes().includes(editor.getGrammar().scopeName);
+  }
+
+
+  getGrammarScopes(){ return ["source.dedukti"]; };
+
+  getLanguageName(){ return "Dedukti";};
+
+  getServerName(){  return "lp-lsp"; };
 
   uriToPath(uri) {
       const url = URL.parse(uri);
@@ -91,12 +77,12 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       return filePath;
   }
 
-
   colorizebuffer(params){
 
     let path = this.uriToPath(params.uri);
     let i = 0;
     let z = 0;
+    var mydiagnostics = new Array();
     let text_editors = atom.workspace.getTextEditors(); //We get the good editor
     let editor = "";
     let j = 0;
@@ -136,6 +122,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
         let decoration = editor.decorateMarker(marker, {type: 'text', class:'Completed_lines'});
       }
       else { // Hence, in red
+        mydiagnostics.push(params.diagnostics[i]);
         var marker = editor.markScreenRange(
           [ [
               params.diagnostics[i].range.start.line,
@@ -151,14 +138,17 @@ class DeduktiLanguageClient extends AutoLanguageClient {
         let decoration = editor.decorateMarker(marker, {type: 'text', class:'Failed_line'});
       }
     }
+
+    return mydiagnostics;
+
   }
 
   preInitialization(connection) { //Two new commands have been added or modified
     connection.onPublishDiagnostics = function(callback) {
       let mycallback = function(params){
         //console.log(params.diagnostics);
-        this.colorizebuffer(params);
-        let mydiagnostics = this.excludepositive(params);
+        //this.colorizebuffer(params);
+        let mydiagnostics = this.colorizebuffer(params);
         params.diagnostics = mydiagnostics;
         callback(params);
       }

@@ -76,6 +76,9 @@ class DeduktiEditorView {
   this.element.remove();
   }
 
+  updateView(){
+  }
+
   updateSubProof(){
 
     let j;
