@@ -1,12 +1,12 @@
 {
-  "DeduktiSettings":{
+  "DeduktiSettings": {
     "type": "object",
-    "properties":{
+    "properties": {
       "lspServerPath": {
         "type": "string",
         "default": "lp-lsp"
       },
-      "lspServerArgs":{
+      "lspServerArgs": {
         "type": "array",
         "default": []
       }
