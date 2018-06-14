@@ -1,12 +1,32 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
+var __awaiter =
+  (this && this.__awaiter) ||
+  function(thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function(resolve, reject) {
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done
+          ? resolve(result.value)
+          : new P(function(resolve) {
+              resolve(result.value);
+            }).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-};
+  };
 
 const dk = require("./dedukti-editor-view");
 const URL = require("url");
@@ -30,7 +50,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       {"dedukti-editor:command3": () => this.command3()})
     */
     this.deduktiEditorView = new dk.default(); // We create the view
-    //this.deduktiEditorView.initialise_exemple();
+    this.deduktiEditorView.initialise_exemple();
     this._disposable.add(
       atom.workspace.observeActiveTextEditor(editor => {
         if (typeof editor != "undefined") {
@@ -61,18 +81,25 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   activate() {
     super.activate();
 
-    Object.getPrototypeOf(this._serverManager).getServer = function getServer(textEditor,{ shouldStart } = { shouldStart: false }) {
+    Object.getPrototypeOf(this._serverManager).getServer = function getServer(
+      textEditor,
+      { shouldStart } = { shouldStart: false }
+    ) {
       return __awaiter(this, void 0, void 0, function*() {
         const finalProjectPath = textEditor.getPath();
         if (finalProjectPath == null) {
           // Files not yet saved have no path
           return null;
         }
-        const foundActiveServer = this._activeServers.find( s => finalProjectPath === s.projectPath);
+        const foundActiveServer = this._activeServers.find(
+          s => finalProjectPath === s.projectPath
+        );
         if (foundActiveServer) {
           return foundActiveServer;
         }
-        const startingPromise = this._startingServerPromises.get(finalProjectPath);
+        const startingPromise = this._startingServerPromises.get(
+          finalProjectPath
+        );
         if (startingPromise) {
           return startingPromise;
         }

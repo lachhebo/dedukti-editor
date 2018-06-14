@@ -16,8 +16,10 @@ class DeduktiEditorView {
     //The tree
     this.list_of_proof = document.createElement("ol");
     this.element.appendChild(this.list_of_proof);
-    this.list_of_proof.classList.add("list-tree");
-    this.list_of_proof.setAttribute("id", "proof-tree");
+    //this.list_of_proof.classList.add("list-tree");
+    //this.list_of_proof.setAttribute("id", "proof-tree");
+
+
 
     //Second Title
     this.focus = document.createElement("h2");
@@ -40,6 +42,25 @@ class DeduktiEditorView {
     this.element.appendChild(this.current_objective);
     this.current_objective.classList.add("icon", "icon-microscope");
 
+
+    /*
+    <div class='btn-toolbar'>
+    <div class='btn-group'>
+      <button class='btn'>One</button>
+      <button class='btn'>Two</button>
+      <button class='btn'>Three</button>
+    </div>
+
+    <div class='btn-group'>
+      <button class='btn'>Four</button>
+      <button class='btn'>Five</button>
+    </div>
+
+    <button class='btn'>Six</button>
+    <button class='btn'>Seven</button>
+    </div>
+    */
+
     // The array we need to store the element we are going to create :
 
     //The style modification we implement :
@@ -58,11 +79,13 @@ class DeduktiEditorView {
   }
 
   initialise_exemple() {
-    this.updateHypothesis([
-      "exemple de rendu : goal 1",
-      "exemple de rendu : goal 1",
-      "exemple de rendu : goal 1"
-    ]);
+
+    let i=0;
+    for(i=0;i<100;i++){
+      let liste_i = document.createElement("li");
+      this.list_of_proof.appendChild(liste_i);
+      liste_i.innerText = "test" + i;
+    }
   }
 
   // Returns an object that can be retrieved when package is activated
