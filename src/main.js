@@ -63,6 +63,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
               })
             );
             atom.workspace.open(this.deduktiEditorView);
+            //console.log(document.getElementById("first"));
           } else {
             atom.workspace.hide(this.deduktiEditorView);
           }

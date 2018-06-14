@@ -10,8 +10,7 @@ class DeduktiEditorView {
     this.proof = document.createElement("h2");
     this.proof.textContent = "Goals";
     this.element.appendChild(this.proof);
-    this.proof.classList.add("highlight");
-    this.proof.style.textAlign = "center";
+    this.proof.classList.add("highlight", "title-goals");
 
     //The tree
     this.list_of_proof = document.createElement("ol");
@@ -19,14 +18,11 @@ class DeduktiEditorView {
     //this.list_of_proof.classList.add("list-tree");
     //this.list_of_proof.setAttribute("id", "proof-tree");
 
-
-
     //Second Title
     this.focus = document.createElement("h2");
     this.focus.textContent = "Focus";
     this.element.appendChild(this.focus);
-    this.focus.classList.add("highlight");
-    this.focus.style.textAlign = "center";
+    this.focus.classList.add("highlight", "title-focus");
 
     //List of Hypothesis :
     this.list_of_hypothesis = document.createElement("ol");
@@ -36,58 +32,66 @@ class DeduktiEditorView {
     //bar
     this.bar = document.createElement("hr");
     this.element.appendChild(this.bar);
+    this.bar.classList.add("bar-proof");
 
     //Current objective
+
     this.current_objective = document.createElement("span");
     this.element.appendChild(this.current_objective);
-    this.current_objective.classList.add("icon", "icon-microscope");
+    this.current_objective.textContent = "Exemple d'objectif courant";
+    this.current_objective.classList.add(
+      "icon",
+      "icon-microscope",
+      "proof-objectif"
+    );
 
+    //Button toolbar at the buttom of the page :
+    this.div_button = document.createElement("div");
+    this.element.appendChild(this.div_button);
+    this.div_button.classList.add("btn-toolbar", "proof-button");
 
-    /*
-    <div class='btn-toolbar'>
-    <div class='btn-group'>
-      <button class='btn'>One</button>
-      <button class='btn'>Two</button>
-      <button class='btn'>Three</button>
-    </div>
+    //First goup of buttons :
+    this.div_button_first = document.createElement("div");
+    this.div_button.appendChild(this.div_button_first);
+    this.div_button_first.classList.add("btn-group");
 
-    <div class='btn-group'>
-      <button class='btn'>Four</button>
-      <button class='btn'>Five</button>
-    </div>
+    this.but1 = document.createElement("button");
+    this.div_button_first.appendChild(this.but1);
+    this.but1.setAttribute("id", "first");
+    this.but1.textContent = "Bouton 1";
+    this.but1.classList.add("btn");
 
-    <button class='btn'>Six</button>
-    <button class='btn'>Seven</button>
-    </div>
-    */
+    this.but2 = document.createElement("button");
+    this.div_button_first.appendChild(this.but2);
+    this.but2.textContent = "Bouton 2";
+    this.but2.classList.add("btn");
 
-    // The array we need to store the element we are going to create :
+    this.but3 = document.createElement("button");
+    this.div_button_first.appendChild(this.but3);
+    this.but3.textContent = "Bouton 3";
+    this.but3.classList.add("btn");
 
-    //The style modification we implement :
-    //console.log(this.proof.style);
-
-    /*  this.proof.style.paddingLeft = '40%';
-        this.proof.style.paddingRight = '50%';
-        this.proof.style.backgroundColor = 'white'
-        this.proof.style.color = 'black'
-
-        this.focus.style.paddingLeft = '40%';
-        this.focus.style.paddingRight = '50%';
-        this.focus.style.backgroundColor = 'white'
-        this.focus.style.color = 'black'
-    */
+    //.addEventListener("click", function(){
+    //console.log("lalalala");
+    //});
   }
 
   initialise_exemple() {
-
-    let i=0;
-    for(i=0;i<100;i++){
+    let i = 0;
+    for (i = 0; i < 20; i++) {
       let liste_i = document.createElement("li");
-      this.list_of_proof.appendChild(liste_i);
+      liste_i.classList.add("focus_data");
+      this.list_of_hypothesis.appendChild(liste_i);
       liste_i.innerText = "test" + i;
     }
-  }
 
+    for (i = 0; i < 100; i++) {
+      let liste_j = document.createElement("li");
+      liste_j.classList.add("goals");
+      this.list_of_proof.appendChild(liste_j);
+      liste_j.innerText = "test" + i;
+    }
+  }
   // Returns an object that can be retrieved when package is activated
   serialize() {}
 
