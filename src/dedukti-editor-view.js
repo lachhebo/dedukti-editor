@@ -16,8 +16,6 @@ class DeduktiEditorView {
     //The tree
     this.list_of_proof = document.createElement("ol");
     this.element.appendChild(this.list_of_proof);
-    //this.list_of_proof.classList.add("list-tree");
-    //this.list_of_proof.setAttribute("id", "proof-tree");
 
     //Second Title
     this.focus = document.createElement("h2");
@@ -36,7 +34,6 @@ class DeduktiEditorView {
     this.bar.classList.add("bar-proof");
 
     //Current objective
-
     this.current_objective = document.createElement("span");
     this.element.appendChild(this.current_objective);
     this.current_objective.textContent = "Exemple d'objectif courant";
@@ -74,9 +71,6 @@ class DeduktiEditorView {
     this.but3.textContent = "Bouton 3";
     this.but3.classList.add("btn");
 
-    //.addEventListener("click", function(){
-    //console.log("lalalala");
-    //});
   }
 
   initialise_exemple() {
@@ -95,6 +89,7 @@ class DeduktiEditorView {
       liste_j.innerText = "test" + i;
     }
   }
+
   // Returns an object that can be retrieved when package is activated
   serialize() {}
 
@@ -106,6 +101,7 @@ class DeduktiEditorView {
   updateView() {}
 
   updateSubProof() {
+    //This function was created to handle a tree view and need to be rewritten
     let j;
     var new_list_of_proof = document.createElement("ol");
 
@@ -150,6 +146,7 @@ class DeduktiEditorView {
   }
 
   updateHypothesis(hypothesis_array) {
+    //This function was created to handle a tree view and need to be rewritten
     let new_list_of_hypothesis = document.createElement("ol");
 
     let i;
@@ -171,6 +168,7 @@ class DeduktiEditorView {
   }
 
   cursor_tree_update(id) {
+    //This function was created to handle a tree view and need to be rewritten
     let to_colorize = document.getElementById(id);
 
     let children = to_colorize.childNodes;
@@ -182,10 +180,12 @@ class DeduktiEditorView {
   }
 
   setCurrentObjectif(current) {
+    //update the current objective
     this.current_objective.innerText = current;
   }
 
   set_data_array(data_server) {
+    //get the data sent by the server ( seems useless now and not complexity-wise smart)
     this.data_proof_array = data_server;
   }
 
@@ -194,19 +194,23 @@ class DeduktiEditorView {
   }
 
   getTitle() {
-    return "Proof Assistant"; // Title of the Information Panel
+    // Title of the Information Panel
+    return "Proof Assistant";
   }
 
   getURI() {
+    // Title of the Information Panel
     return "atom://active-editor-info";
   }
 
   getDefaultLocation() {
-    return "right"; //Position of the panel
+    //Position of the panel
+    return "right";
   }
 
   getAllowedLocation() {
-    return ["left", "right", "bottom"]; //Where we can move it.
+    //Where we can move it.
+    return ["left", "right", "bottom"];
   }
 }
 
