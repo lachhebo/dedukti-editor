@@ -51,6 +51,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     */
     this.deduktiEditorView = new dk.default(); // We create the view
     this.deduktiEditorView.initialise_exemple();
+    this.view_opened = 0;
     this._disposable.add(
       atom.workspace.observeActiveTextEditor(editor => {
         if (typeof editor != "undefined") {
@@ -63,7 +64,14 @@ class DeduktiLanguageClient extends AutoLanguageClient {
               })
             );
             atom.workspace.open(this.deduktiEditorView);
-            //console.log(document.getElementById("first"));
+            setTimeout(this.addeventbutton, 1000,this.view_opened);
+            //document.getElementById("proofview").addEventListener("DOMContentLoaded", () => {
+              //module.exports.addeventbutton();
+            //});
+            //this.deduktiEditorView.getElement().onload =  () => {
+              //module.exports.addeventbutton();
+            //};
+
           } else {
             atom.workspace.hide(this.deduktiEditorView);
           }
@@ -72,6 +80,24 @@ class DeduktiLanguageClient extends AutoLanguageClient {
         }
       })
     );
+  }
+
+  addeventbutton(view_opened){
+    if( view_opened === 0){
+      document.getElementById("first").addEventListener("click",() => {
+        console.log("command1");
+        module.exports.command1();
+      });
+      document.getElementById("second").addEventListener("click",() =>{
+        console.log("command2");
+        module.exports.command2();
+      });
+      document.getElementById("third").addEventListener("click",() => {
+        console.log("command3");
+        module.exports.command3();
+      });
+      module.exports.view_opened = 1;
+    }
   }
 
   startServer(projectPath) {
@@ -221,8 +247,9 @@ class DeduktiLanguageClient extends AutoLanguageClient {
         mycallback.bind(module.exports)
       );
     };
-    /*
+
     this.connect_server = connection
+    /*
     connection.onCustom("ProofAssistant/ActiveGoals",
     (e) => {
       this.updateView(e);
@@ -269,9 +296,9 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   } //The second command launch this function
 
   //In case the first key binding is activated
-  //command1(){ this.connect_server.didChangeTextDocument([]); };
-  //command2(){ this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey2",[]); };
-  //command3(){ this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey3",[]); };
+  command1(){ this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey1",[]); };
+  command2(){ this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey2",[]); };
+  command3(){ this.connect_server.sendCustomNotification("ProofAssistant/CapturedKey3",[]); };
 }
 
 module.exports = new DeduktiLanguageClient();

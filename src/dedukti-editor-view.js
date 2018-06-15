@@ -5,6 +5,7 @@ class DeduktiEditorView {
     // Create root element
     this.element = document.createElement("div");
     this.element.classList.add("dedukti-editor");
+    this.element.setAttribute("id", "proofview");
 
     //First title
     this.proof = document.createElement("h2");
@@ -63,11 +64,13 @@ class DeduktiEditorView {
 
     this.but2 = document.createElement("button");
     this.div_button_first.appendChild(this.but2);
+    this.but2.setAttribute("id", "second");
     this.but2.textContent = "Bouton 2";
     this.but2.classList.add("btn");
 
     this.but3 = document.createElement("button");
     this.div_button_first.appendChild(this.but3);
+    this.but3.setAttribute("id", "third");
     this.but3.textContent = "Bouton 3";
     this.but3.classList.add("btn");
 
