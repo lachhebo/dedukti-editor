@@ -2,34 +2,6 @@
 /*
 The awaiter is a function used by the atom-language client, for the moment, we need it to change the way files are handled
 */
-var __awaiter =
-  (this && this.__awaiter) ||
-  function(thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function(resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done
-          ? resolve(result.value)
-          : new P(function(resolve) {
-              resolve(result.value);
-            }).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-  };
 
 const dk = require("./dedukti-editor-view");
 const URL = require("url");
@@ -43,7 +15,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
     atom.config.set("core.debugLSP", true); // Debug by default;
     this.config = require("./config.json"); // To modify the configuration, check the setting view
-
   }
 
   addeventbutton() {
@@ -84,34 +55,15 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     super.activate();
 
     // We want the server to be launched if a .dk file is opened on the home directory
-    Object.getPrototypeOf(this._serverManager).getServer = function getServer(
-      textEditor,
-      { shouldStart } = { shouldStart: false }
-    ) {
-      return __awaiter(this, void 0, void 0, function*() {
-        //here, the path of the project is the path of the dk file instead of getting it from an internal function of atom-languageclient.
-        const finalProjectPath = textEditor.getPath();
-        if (finalProjectPath == null) {
-          // Files not yet saved have no path
-          return null;
-        }
-        const foundActiveServer = this._activeServers.find(
-          s => finalProjectPath === s.projectPath
-        );
-        if (foundActiveServer) {
-          return foundActiveServer;
-        }
-        const startingPromise = this._startingServerPromises.get(
-          finalProjectPath
-        );
-        if (startingPromise) {
-          return startingPromise;
-        }
-        return shouldStart && this._startForEditor(textEditor)
-          // The finalProject variable has no importance in the startServer function because it will be erased by the home directory path
-          ? yield this.startServer(finalProjectPath)
-          : null;
-      });
+
+    Object.getPrototypeOf(
+      this._serverManager
+    ).determineProjectPath = function determineProjectPath(textEditor) {
+      const filePath = textEditor.getPath();
+      if (filePath == null) {
+        return null;
+      }
+      return filePath;
     }.bind(this._serverManager);
 
     // create the view and variables we will need to handle it.
@@ -147,19 +99,16 @@ class DeduktiLanguageClient extends AutoLanguageClient {
               this.addeventbutton();
               this.buttons_listened = 1;
             }
-          }
-          else {
+          } else {
             //hide the view
             atom.workspace.hide(this.deduktiEditorView);
           }
-        }
-        else {
+        } else {
           //hide the view
           atom.workspace.hide(this.deduktiEditorView);
         }
       })
     );
-
   }
 
   getGrammarScopes() {
@@ -174,7 +123,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return "lp-lsp";
   }
 
-  uriToPath(uri) { // just a tool we need.
+  uriToPath(uri) {
+    // just a tool we need.
     const url = URL.parse(uri);
     if (url.protocol !== "file:" || url.path === undefined) {
       return uri;
@@ -288,7 +238,9 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   startServerProcess(projectPath) {
     // we get the command and args from the setting panel
-    var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
+    var command = atom.config.get(
+      "dedukti-editor.DeduktiSettings.lspServerPath"
+    );
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
 
     /* // Debug for developper (isma)
