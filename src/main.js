@@ -1,12 +1,9 @@
 "use strict";
-/*
-The awaiter is a function used by the atom-language client, for the moment, we need it to change the way files are handled
-*/
 
 const dk = require("./dedukti-editor-view");
 const URL = require("url");
 const child_process = require("child_process");
-const { AutoLanguageClient, DownloadFile } = require("atom-languageclient");
+const { AutoLanguageClient, DownloadFile, Convert } = require("atom-languageclient");
 
 class DeduktiLanguageClient extends AutoLanguageClient {
   constructor() {
@@ -17,38 +14,16 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     this.config = require("./config.json"); // To modify the configuration, check the setting view
   }
 
-  addeventbutton() {
-    // add some listener for buttons
-    this.deduktiEditorView.but1.addEventListener("click", () => {
-      module.exports.command1();
-    });
-
-    this.deduktiEditorView.but2.addEventListener("click", () => {
-      module.exports.command2();
-    });
-
-    this.deduktiEditorView.but3.addEventListener("click", () => {
-      module.exports.command3();
-    });
+  getGrammarScopes() {
+    return ["source.dedukti"];
   }
 
-  add_event_cursor(editor, editor_list) {
-    // add some listener for cursor in an editor
-    // we ckeck the editor is currently not listened
-    if (!editor_list.includes(editor)) {
-      this._disposable.add(
-        editor.onDidChangeCursorPosition(cursor => {
-          //module.exports.deduktiEditorView.updateView(cursor);
-        })
-      );
-      editor_list.push(editor);
-    }
+  getLanguageName() {
+    return "Dedukti";
   }
 
-  startServer(projectPath) {
-    // we want the server to listen for every .dk file on home directory
-    const homedir = require("os").homedir();
-    return super.startServer(homedir);
+  getServerName() {
+    return "lp-lsp";
   }
 
   activate() {
@@ -111,38 +86,72 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     );
   }
 
-  getGrammarScopes() {
-    return ["source.dedukti"];
+  startServer(projectPath) {
+    // we want the server to listen for every .dk file on home directory
+    const homedir = require("os").homedir();
+    return super.startServer(homedir);
   }
 
-  getLanguageName() {
-    return "Dedukti";
+  preInitialization(connection) {
+    // we hack onPublishDiagnostics message before it is received by atom and handle positive message
+    connection.onPublishDiagnostics = function(callback) {
+      let mycallback = function(params) {
+        let mydiagnostics = this.colorizebuffer(params);
+        params.diagnostics = mydiagnostics;
+        callback(params);
+      };
+      connection._onNotification(
+        { method: "textDocument/publishDiagnostics" },
+        mycallback.bind(module.exports)
+      );
+    };
+
+    this.connect_server = connection;
+
+    /*
+    A new command we may add to handle the view.
+    connection.onCustom("ProofAssistant/ActiveGoals",
+    (e) => {
+      this.updateView(e);
+    });
+    */
   }
 
-  getServerName() {
-    return "lp-lsp";
+  startServerProcess(projectPath) {
+    // we get the command and args from the setting panel
+    var command = atom.config.get(
+      "dedukti-editor.DeduktiSettings.lspServerPath"
+    );
+    var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
+
+    /* // Debug for developper (isma)
+    var command_test = "./lplsp_test";
+    const childProcess = child_process.spawn(command_test, args,{
+      cwd: "/home/isma/Documents/dedukti-editor/src"
+    });
+     // */
+
+    // a new process is created and send back
+    const childProcess = child_process.spawn(command, args);
+    return childProcess;
   }
 
-  uriToPath(uri) {
-    // just a tool we need.
-    const url = URL.parse(uri);
-    if (url.protocol !== "file:" || url.path === undefined) {
-      return uri;
-    }
-    let filePath = decodeURIComponent(url.path);
-    if (process.platform === "win32") {
-      // Deal with Windows drive names
-      if (filePath[0] === "/") {
-        filePath = filePath.substr(1);
+  handleSpawnFailure(err) {
+    //TODO: Use the `which` module to provide a better error in the case of a missing server.
+    atom.notifications.addError(
+      "Error starting the language server: " +
+        atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath"),
+      {
+        dismissable: true,
+        description:
+          "Please make sure you've followed the Installation section in the README and that the server is functional"
       }
-      return filePath.replace(/\//g, "\\");
-    }
-    return filePath;
+    );
   }
 
   colorizebuffer(params) {
     // every variable we need.
-    let path = this.uriToPath(params.uri);
+    let path = Convert.uriToPath(params.uri);
     let i = 0;
     let z = 0;
     let j = 0;
@@ -211,67 +220,32 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return mydiagnostics;
   }
 
-  preInitialization(connection) {
-    // we hack onPublishDiagnostics message before it is received by atom and handle positive message
-    connection.onPublishDiagnostics = function(callback) {
-      let mycallback = function(params) {
-        let mydiagnostics = this.colorizebuffer(params);
-        params.diagnostics = mydiagnostics;
-        callback(params);
-      };
-      connection._onNotification(
-        { method: "textDocument/publishDiagnostics" },
-        mycallback.bind(module.exports)
+  add_event_cursor(editor, editor_list) {
+    // add some listener for cursor in an editor
+    // we ckeck the editor is currently not listened
+    if (!editor_list.includes(editor)) {
+      this._disposable.add(
+        editor.onDidChangeCursorPosition(cursor => {
+          //module.exports.deduktiEditorView.updateView(cursor);
+        })
       );
-    };
+      editor_list.push(editor);
+    }
+  }
 
-    this.connect_server = connection;
-
-    /*
-    A new command we may add to handle the view.
-    connection.onCustom("ProofAssistant/ActiveGoals",
-    (e) => {
-      this.updateView(e);
+  addeventbutton() {
+    // add some listener for buttons
+    this.deduktiEditorView.but1.addEventListener("click", () => {
+      module.exports.command1();
     });
-    */
-  }
 
-  startServerProcess(projectPath) {
-    // we get the command and args from the setting panel
-    var command = atom.config.get(
-      "dedukti-editor.DeduktiSettings.lspServerPath"
-    );
-    var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
-
-    /* // Debug for developper (isma)
-    var command_test = "./lplsp_test";
-    const childProcess = child_process.spawn(command_test, args,{
-      cwd: "/home/isma/Documents/dedukti-editor/src"
+    this.deduktiEditorView.but2.addEventListener("click", () => {
+      module.exports.command2();
     });
-     // */
 
-    // a new process is created and send back
-    const childProcess = child_process.spawn(command, args);
-    return childProcess;
-  }
-
-  handleSpawnFailure(err) {
-    //TODO: Use the `which` module to provide a better error in the case of a missing server.
-    atom.notifications.addError(
-      "Error starting the language server: " +
-        atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath"),
-      {
-        dismissable: true,
-        description:
-          "Please make sure you've followed the Installation section in the README and that the server is functional"
-      }
-    );
-  }
-
-  updateView(e) {
-    //Depreceated
-    //a function to update a part of the view (seems useless for the moment)
-    this.deduktiEditorView.updateSubProof(e);
+    this.deduktiEditorView.but3.addEventListener("click", () => {
+      module.exports.command3();
+    });
   }
 
   //In case the a key binding or a button is activated, we send message to the server
@@ -281,18 +255,27 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       []
     );
   }
+
   command2() {
     this.connect_server.sendCustomNotification(
       "ProofAssistant/CapturedKey2",
       []
     );
   }
+
   command3() {
     this.connect_server.sendCustomNotification(
       "ProofAssistant/CapturedKey3",
       []
     );
   }
+
+  updateView(e) {
+    //Depreceated
+    //a function to update a part of the view (seems useless for the moment)
+    this.deduktiEditorView.updateSubProof(e);
+  }
+
 }
 
 module.exports = new DeduktiLanguageClient();
