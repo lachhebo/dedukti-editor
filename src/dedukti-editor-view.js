@@ -3,76 +3,89 @@ class DeduktiEditorView {
     // It's just a simple web page created using the DOM API.
 
     // Create root element
-    this.element = document.createElement("div");
-    this.element.classList.add("dedukti-editor");
-    this.element.setAttribute("id", "proofview");
+
+    this.element = this.createCustomElement("div",["dedukti-editor"],"proofview",null,null);
 
     //First title
-    this.proof = document.createElement("h2");
-    this.proof.textContent = "Goals";
-    this.element.appendChild(this.proof);
-    this.proof.classList.add("highlight", "title-goals");
+    this.proof = this.createCustomElement("h2",["highlight", "title-goals"],null,"Goals",this.element);
 
     //The tree
-    this.list_of_proof = document.createElement("ol");
-    this.element.appendChild(this.list_of_proof);
+    this.list_of_proof = this.createCustomElement("ol",[],null,null,this.element);
 
     //Second Title
-    this.focus = document.createElement("h2");
-    this.focus.textContent = "Focus";
-    this.element.appendChild(this.focus);
-    this.focus.classList.add("highlight", "title-focus");
+    this.focus = this.createCustomElement("h2",["highlight", "title-goals"],null,"Focus",this.element);
 
     //List of Hypothesis :
-    this.list_of_hypothesis = document.createElement("ol");
-    this.element.appendChild(this.list_of_hypothesis);
-    this.list_of_hypothesis.classList.add("list-group");
+    this.list_of_hypothesis = this.createCustomElement("ol",["list-group"],null,null,this.element);
 
     //bar
-    this.bar = document.createElement("hr");
-    this.element.appendChild(this.bar);
-    this.bar.classList.add("bar-proof");
+    this.bar = this.createCustomElement("hr",["bar-proof"],null,null,this.element);
 
     //Current objective
-    this.current_objective = document.createElement("span");
-    this.element.appendChild(this.current_objective);
-    this.current_objective.textContent = "Exemple d'objectif courant";
-    this.current_objective.classList.add(
-      "icon",
-      "icon-microscope",
-      "proof-objectif"
-    );
+    this.current_objective = this.createCustomElement("span",["icon","icon-microscope","proof-objectif"],null, "Exemple d'objectif courant",this.element);
 
     //Button toolbar at the buttom of the page :
-    this.div_button = document.createElement("div");
-    this.element.appendChild(this.div_button);
-    this.div_button.classList.add("btn-toolbar", "proof-button");
+    this.div_button = this.createCustomElement("div",["btn-toolbar", "proof-button"],null,null,this.element);
 
     //First goup of buttons :
-    this.div_button_first = document.createElement("div");
-    this.div_button.appendChild(this.div_button_first);
-    this.div_button_first.classList.add("btn-group");
+    this.div_button_first = this.createCustomElement("div",["btn-group"],null,null,this.div_button);
 
-    this.but1 = document.createElement("button");
-    this.div_button_first.appendChild(this.but1);
-    this.but1.setAttribute("id", "first");
-    this.but1.textContent = "Bouton 1";
-    this.but1.classList.add("btn");
-
-    this.but2 = document.createElement("button");
-    this.div_button_first.appendChild(this.but2);
-    this.but2.setAttribute("id", "second");
-    this.but2.textContent = "Bouton 2";
-    this.but2.classList.add("btn");
-
-    this.but3 = document.createElement("button");
-    this.div_button_first.appendChild(this.but3);
-    this.but3.setAttribute("id", "third");
-    this.but3.textContent = "Bouton 3";
-    this.but3.classList.add("btn");
+    // Buttons :
+    this.but1 = this.createCustomElement("button",["btn"],"first" ,"Bouton 1",this.div_button_first);
+    this.but2 = this.createCustomElement("button",["btn"],"second","Bouton 2",this.div_button_first);
+    this.but3 = this.createCustomElement("button",["btn"],"third" ,"Bouton 3",this.div_button_first);
 
   }
 
+
+  createCustomElement(type, classlist, id, textcontent, parentnode){
+
+    let element = document.createElement(type);
+    let i;
+
+    for(i=0;i<classlist.length;i++){
+      element.classList.add(classlist[i]);
+    }
+
+    if(id !=null){
+      element.setAttribute("id",id);
+    }
+    if(textcontent != null){
+      element.textContent = textcontent;
+    }
+    if(parentnode != null){
+      parentnode.appendChild(element);
+    }
+
+    return element;
+
+  }
+
+  getElement() {
+    return this.element;
+  }
+
+  getTitle() {
+    // Title of the Information Panel
+    return "Proof Assistant";
+  }
+
+  getURI() {
+    // Title of the Information Panel
+    return "atom://active-editor-info";
+  }
+
+  getDefaultLocation() {
+    //Position of the panel
+    return "right";
+  }
+
+  getAllowedLocation() {
+    //Where we can move it.
+    return ["left", "right", "bottom"];
+  }
+
+  // An example to show how the view is looking.
   initialise_exemple() {
     let i = 0;
     for (i = 0; i < 20; i++) {
@@ -98,8 +111,15 @@ class DeduktiEditorView {
     this.element.remove();
   }
 
+  //update the current objective
+  setCurrentObjectif(current) {
+    this.current_objective.innerText = current;
+  }
+
+  // A function to update the view when it's needed
   updateView() {}
 
+  // A function to update the the goals list when it's needed
   updateSubProof() {
     //This function was created to handle a tree view and need to be rewritten
     let j;
@@ -145,6 +165,7 @@ class DeduktiEditorView {
     );
   }
 
+  // A function to update the the hypothesis list when it's needed
   updateHypothesis(hypothesis_array) {
     //This function was created to handle a tree view and need to be rewritten
     let new_list_of_hypothesis = document.createElement("ol");
@@ -167,6 +188,7 @@ class DeduktiEditorView {
     );
   }
 
+  // Not usefull yet, may be useless
   cursor_tree_update(id) {
     //This function was created to handle a tree view and need to be rewritten
     let to_colorize = document.getElementById(id);
@@ -179,39 +201,11 @@ class DeduktiEditorView {
     span.classList.add("icon-eye-watch");
   }
 
-  setCurrentObjectif(current) {
-    //update the current objective
-    this.current_objective.innerText = current;
-  }
-
+  //get the data sent by the server ( seems useless now and not complexity-wise smart)
   set_data_array(data_server) {
-    //get the data sent by the server ( seems useless now and not complexity-wise smart)
     this.data_proof_array = data_server;
   }
 
-  getElement() {
-    return this.element;
-  }
-
-  getTitle() {
-    // Title of the Information Panel
-    return "Proof Assistant";
-  }
-
-  getURI() {
-    // Title of the Information Panel
-    return "atom://active-editor-info";
-  }
-
-  getDefaultLocation() {
-    //Position of the panel
-    return "right";
-  }
-
-  getAllowedLocation() {
-    //Where we can move it.
-    return ["left", "right", "bottom"];
-  }
 }
 
 exports.default = DeduktiEditorView;
