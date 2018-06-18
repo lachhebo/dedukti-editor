@@ -1,4 +1,7 @@
 "use strict";
+/*
+The awaiter is a function used by the atom-language client, for the moment, we need it to change the way files are handled
+*/
 var __awaiter =
   (this && this.__awaiter) ||
   function(thisArg, _arguments, P, generator) {
@@ -45,20 +48,22 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   addeventbutton() {
     // add some listener for buttons
-    document.getElementById("first").addEventListener("click", () => {
+    this.deduktiEditorView.but1.addEventListener("click", () => {
       module.exports.command1();
     });
-    document.getElementById("second").addEventListener("click", () => {
+
+    this.deduktiEditorView.but2.addEventListener("click", () => {
       module.exports.command2();
     });
-    document.getElementById("third").addEventListener("click", () => {
+
+    this.deduktiEditorView.but3.addEventListener("click", () => {
       module.exports.command3();
     });
   }
 
   add_event_cursor(editor, editor_list) {
     // add some listener for cursor in an editor
-    // we ckeck the editor is currenctly not listened
+    // we ckeck the editor is currently not listened
     if (!editor_list.includes(editor)) {
       this._disposable.add(
         editor.onDidChangeCursorPosition(cursor => {
@@ -78,11 +83,13 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   activate() {
     super.activate();
 
+    // We want the server to be launched if a .dk file is opened on the home directory
     Object.getPrototypeOf(this._serverManager).getServer = function getServer(
       textEditor,
       { shouldStart } = { shouldStart: false }
     ) {
       return __awaiter(this, void 0, void 0, function*() {
+        //here, the path of the project is the path of the dk file instead of getting it from an internal function of atom-languageclient.
         const finalProjectPath = textEditor.getPath();
         if (finalProjectPath == null) {
           // Files not yet saved have no path
@@ -101,6 +108,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
           return startingPromise;
         }
         return shouldStart && this._startForEditor(textEditor)
+          // The finalProject variable has no importance in the startServer function because it will be erased by the home directory path
           ? yield this.startServer(finalProjectPath)
           : null;
       });
@@ -136,7 +144,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
             atom.workspace.open(this.deduktiEditorView);
             this.add_event_cursor(editor, this.editor_list);
             if (this.buttons_listened === 0) {
-              setTimeout(this.addeventbutton, 1000); // TODO: do not use a setTimeout but rather a reactive function.
+              this.addeventbutton();
               this.buttons_listened = 1;
             }
           }
@@ -187,10 +195,10 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     let path = this.uriToPath(params.uri);
     let i = 0;
     let z = 0;
+    let j = 0;
     var mydiagnostics = new Array();
     let text_editors = atom.workspace.getTextEditors(); // we get all active editors in atom
     let editor = "";
-    let j = 0;
 
     //we want to get the editor concerned by the diagnostics
     for (j = 0; j < text_editors.length; j++) {
@@ -307,8 +315,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       }
     );
   }
-
-  apply_check_file(e) {} //The first command launch this function
 
   updateView(e) {
     //Depreceated
