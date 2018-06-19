@@ -41,7 +41,7 @@ class DeduktiEditorView {
     //List of Hypothesis :
     this.list_of_hypothesis = this.createCustomElement(
       "ol",
-      ["list-group"],
+      ["list-group", "hypo-list"],
       null,
       null,
       this.element
@@ -186,8 +186,9 @@ class DeduktiEditorView {
   }
 
   // A function to update the view when it's needed
-  updateView(selection) {
-    //console.log(selection);
+  updateView(selection, editor) {
+    console.log(editor);
+    let path = editor.getPath();
     let i = 0;
     //console.log(selection);
     if (
@@ -205,6 +206,7 @@ class DeduktiEditorView {
       for (i = 0; i < this.dataView.length; i++) {
         //console.log(this.dataView[i].range)
         if (
+          this.dataView[i].path === path &&
           this.dataView[i].range.start.line <= row &&
           this.dataView[i].range.end.line >= row_end &&
           this.dataView[i].range.start.character <= column &&
@@ -218,17 +220,18 @@ class DeduktiEditorView {
       }
       if(none_objective === 0){
         this.setCurrentObjectif("");
+        this.cleanHypothesis();
       }
     }
   }
 
   markGoal(goalstring){
-  /*  let oldgoal = this.list_of_proof.getElementsByClassName("text-info");
+/*    let oldgoal = this.list_of_proof.getElementsByClassName("text-info");
     console.log(oldgoal);
     if( oldgoal = null){
       oldgoal.classList.remove("text-info");
     }
-
+*/
 
     let goals = this.list_of_proof.getElementsByClassName("goals");
     //console.log(goals);
@@ -238,13 +241,14 @@ class DeduktiEditorView {
     while(find ===0 && i<goals.length){
       console.log(goals[i].innerText);
       console.log(goalstring);
-      if(goals[i].innerText === goalstring){
+      console.log(goalstring.includes(goals[i].innerText))
+      if(goalstring.includes(goals[i].innerText)){
         goals[i].classList.add("text-info");
         find = 1;
       }
       i++;
     }
-  */
+
   }
 
   setHypothesis(hypothesis){
@@ -290,7 +294,8 @@ class DeduktiEditorView {
     }
   }
 
-  updateDiagnostics(data) {
+  updateDiagnostics(data,text_editor_path) {
+    console.log(text_editor_path);
     this.dataView = [];
     let diagnostics = [];
     let i;
@@ -311,7 +316,6 @@ class DeduktiEditorView {
             goalhypothesis = goalhypothesis.concat(hypo);
         }
 
-
         goalhypothesis.pop();
 
         if(curentobj.startsWith("\n")){
@@ -319,6 +323,7 @@ class DeduktiEditorView {
         }
 
         this.dataView.push({
+          path : text_editor_path,
           range: data[i].range,
           goal: curentobj,
           hypothesis : goalhypothesis
@@ -328,7 +333,7 @@ class DeduktiEditorView {
         diagnostics.push(data[i]);
       }
     }
-    this.setGoals();
+    //this.setGoals();
     return diagnostics;
   }
 

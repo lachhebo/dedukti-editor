@@ -97,7 +97,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     connection.onPublishDiagnostics = function(callback) {
       let mycallback = function(params) {
         //console.log(params.diagnostics);
-        params.diagnostics = this.deduktiEditorView.updateDiagnostics(params.diagnostics);
+        params.diagnostics = this.deduktiEditorView.updateDiagnostics(params.diagnostics, Convert.uriToPath(params.uri));
         let mydiagnostics = this.colorizebuffer(params);
         params.diagnostics = mydiagnostics;
         callback(params);
@@ -228,7 +228,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     if (!editor_list.includes(editor)) {
       this._disposable.add(
         editor.onDidChangeSelectionRange(selection => {
-          module.exports.deduktiEditorView.updateView(selection);
+          module.exports.deduktiEditorView.updateView(selection, editor);
         })
       );
       editor_list.push(editor);
