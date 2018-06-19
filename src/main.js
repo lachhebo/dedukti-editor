@@ -10,7 +10,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     // at the opening of Atom
     super();
 
-    atom.config.set("core.debugLSP", true); // Debug by default;
+    //atom.config.set("core.debugLSP", true); // Debug by default;
     this.config = require("./config.json"); // To modify the configuration, check the setting view
   }
 
@@ -57,7 +57,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       "dedukti-editor:command3": () => this.command3()
     });
 
-    this.deduktiEditorView.initialise_exemple();
+    //this.deduktiEditorView.initialise_exemple();
 
     // manage the view opening and closing, call listener for buttons
     this._disposable.add(
@@ -96,6 +96,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     // we hack onPublishDiagnostics message before it is received by atom and handle positive message
     connection.onPublishDiagnostics = function(callback) {
       let mycallback = function(params) {
+        //console.log(params.diagnostics);
+        params.diagnostics = this.deduktiEditorView.updateDiagnostics(params.diagnostics);
         let mydiagnostics = this.colorizebuffer(params);
         params.diagnostics = mydiagnostics;
         callback(params);
@@ -225,8 +227,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     // we ckeck the editor is currently not listened
     if (!editor_list.includes(editor)) {
       this._disposable.add(
-        editor.onDidChangeCursorPosition(cursor => {
-          //module.exports.deduktiEditorView.updateView(cursor);
+        editor.onDidChangeSelectionRange(selection => {
+          module.exports.deduktiEditorView.updateView(selection);
         })
       );
       editor_list.push(editor);

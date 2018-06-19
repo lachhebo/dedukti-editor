@@ -3,62 +3,131 @@ class DeduktiEditorView {
     // It's just a simple web page created using the DOM API.
 
     // Create root element
-
-    this.element = this.createCustomElement("div",["dedukti-editor"],"proofview",null,null);
+    this.element = this.createCustomElement(
+      "div",
+      ["dedukti-editor"],
+      "proofview",
+      null,
+      null
+    );
 
     //First title
-    this.proof = this.createCustomElement("h2",["highlight", "title-goals"],null,"Goals",this.element);
+    this.proof = this.createCustomElement(
+      "h2",
+      ["highlight", "title-goals"],
+      null,
+      "Goals",
+      this.element
+    );
 
     //The tree
-    this.list_of_proof = this.createCustomElement("ol",[],null,null,this.element);
+    this.list_of_proof = this.createCustomElement(
+      "ol",
+      [],
+      null,
+      null,
+      this.element
+    );
 
     //Second Title
-    this.focus = this.createCustomElement("h2",["highlight", "title-goals"],null,"Focus",this.element);
+    this.focus = this.createCustomElement(
+      "h2",
+      ["highlight", "title-goals"],
+      null,
+      "Focus",
+      this.element
+    );
 
     //List of Hypothesis :
-    this.list_of_hypothesis = this.createCustomElement("ol",["list-group"],null,null,this.element);
+    this.list_of_hypothesis = this.createCustomElement(
+      "ol",
+      ["list-group"],
+      null,
+      null,
+      this.element
+    );
 
     //bar
-    this.bar = this.createCustomElement("hr",["bar-proof"],null,null,this.element);
+    this.bar = this.createCustomElement(
+      "hr",
+      ["bar-proof"],
+      null,
+      null,
+      this.element
+    );
 
     //Current objective
-    this.current_objective = this.createCustomElement("span",["icon","icon-microscope","proof-objectif"],null, "Exemple d'objectif courant",this.element);
+    this.current_objective = this.createCustomElement(
+      "h3",
+      ["proof-objectif","text-highlight"],
+      null,
+      "Exemple d'objectif courant",
+      this.element
+    );
 
     //Button toolbar at the buttom of the page :
-    this.div_button = this.createCustomElement("div",["btn-toolbar", "proof-button"],null,null,this.element);
+    this.div_button = this.createCustomElement(
+      "div",
+      ["btn-toolbar", "proof-button"],
+      null,
+      null,
+      this.element
+    );
 
     //First goup of buttons :
-    this.div_button_first = this.createCustomElement("div",["btn-group"],null,null,this.div_button);
+    this.div_button_first = this.createCustomElement(
+      "div",
+      ["btn-group"],
+      null,
+      null,
+      this.div_button
+    );
 
     // Buttons :
-    this.but1 = this.createCustomElement("button",["btn"],"first" ,"Bouton 1",this.div_button_first);
-    this.but2 = this.createCustomElement("button",["btn"],"second","Bouton 2",this.div_button_first);
-    this.but3 = this.createCustomElement("button",["btn"],"third" ,"Bouton 3",this.div_button_first);
+    this.but1 = this.createCustomElement(
+      "button",
+      ["btn"],
+      "first",
+      "Bouton 1",
+      this.div_button_first
+    );
+    this.but2 = this.createCustomElement(
+      "button",
+      ["btn"],
+      "second",
+      "Bouton 2",
+      this.div_button_first
+    );
+    this.but3 = this.createCustomElement(
+      "button",
+      ["btn"],
+      "third",
+      "Bouton 3",
+      this.div_button_first
+    );
 
+    this.dataView = [];
   }
 
-
-  createCustomElement(type, classlist, id, textcontent, parentnode){
-
+  createCustomElement(type, classlist, id, textcontent, parentnode) {
     let element = document.createElement(type);
     let i;
 
-    for(i=0;i<classlist.length;i++){
+    for (i = 0; i < classlist.length; i++) {
       element.classList.add(classlist[i]);
     }
 
-    if(id !=null){
-      element.setAttribute("id",id);
+    if (id != null) {
+      element.setAttribute("id", id);
     }
-    if(textcontent != null){
+    if (textcontent != null) {
       element.textContent = textcontent;
     }
-    if(parentnode != null){
+    if (parentnode != null) {
       parentnode.appendChild(element);
     }
 
     return element;
-
   }
 
   getElement() {
@@ -95,7 +164,7 @@ class DeduktiEditorView {
       liste_i.innerText = "test" + i;
     }
 
-    for (i = 0; i < 100; i++) {
+    for (i = 0; i < 10; i++) {
       let liste_j = document.createElement("li");
       liste_j.classList.add("goals");
       this.list_of_proof.appendChild(liste_j);
@@ -117,8 +186,154 @@ class DeduktiEditorView {
   }
 
   // A function to update the view when it's needed
-  updateView() {}
+  updateView(selection) {
+    //console.log(selection);
+    let i = 0;
+    //console.log(selection);
+    if (
+      selection.newScreenRange.start.row == selection.newScreenRange.end.row &&
+      selection.newScreenRange.start.column ==
+        selection.newScreenRange.end.column
+    ) {
+      //console.log("new cusor detected");
+      let row = selection.newScreenRange.start.row;
+      let row_end = selection.newScreenRange.end.row;
+      let column = selection.newScreenRange.start.column;
+      let column_end = selection.newScreenRange.end.column;
+      let none_objective = 0;
 
+      for (i = 0; i < this.dataView.length; i++) {
+        //console.log(this.dataView[i].range)
+        if (
+          this.dataView[i].range.start.line <= row &&
+          this.dataView[i].range.end.line >= row_end &&
+          this.dataView[i].range.start.character <= column &&
+          this.dataView[i].range.end.character >= column_end
+        ) {
+          this.setCurrentObjectif(this.dataView[i].goal);
+          this.setHypothesis(this.dataView[i].hypothesis);
+          //this.markGoal(this.dataView[i].goal);
+          none_objective = 1;
+        }
+      }
+      if(none_objective === 0){
+        this.setCurrentObjectif("");
+      }
+    }
+  }
+
+  markGoal(goalstring){
+  /*  let oldgoal = this.list_of_proof.getElementsByClassName("text-info");
+    console.log(oldgoal);
+    if( oldgoal = null){
+      oldgoal.classList.remove("text-info");
+    }
+
+
+    let goals = this.list_of_proof.getElementsByClassName("goals");
+    //console.log(goals);
+    let i = 0;
+    let find =0;
+
+    while(find ===0 && i<goals.length){
+      console.log(goals[i].innerText);
+      console.log(goalstring);
+      if(goals[i].innerText === goalstring){
+        goals[i].classList.add("text-info");
+        find = 1;
+      }
+      i++;
+    }
+  */
+  }
+
+  setHypothesis(hypothesis){
+    let i = 0;
+    this.cleanHypothesis();
+
+    for (i = 0; i <hypothesis.length; i++) {
+      let liste_i = document.createElement("li");
+      liste_i.classList.add("focus_data");
+      this.list_of_hypothesis.appendChild(liste_i);
+      liste_i.innerText = hypothesis[i];
+    }
+  }
+
+  cleanHypothesis(){
+    while (this.list_of_hypothesis.firstChild) {
+      //The list is LIVE so it will re-index each call
+      this.list_of_hypothesis.removeChild(this.list_of_hypothesis.firstChild);
+    }
+  }
+
+  setGoals(){
+    this.cleanGoals();
+    let i=0;
+    let datadisplayed = [];
+
+    for (i = 0; i <this.dataView.length; i++) {
+      if(!datadisplayed.includes(this.dataView[i].goal)){
+
+        let liste_j = document.createElement("li");
+        liste_j.classList.add("goals");
+        this.list_of_proof.appendChild(liste_j);
+        liste_j.innerText = this.dataView[i].goal;
+        datadisplayed.push(this.dataView[i].goal);
+      }
+    }
+  }
+
+  cleanGoals(){
+    while (this.list_of_proof.firstChild) {
+      //The list is LIVE so it will re-index each call
+      this.list_of_proof.removeChild(this.list_of_proof.firstChild);
+    }
+  }
+
+  updateDiagnostics(data) {
+    this.dataView = [];
+    let diagnostics = [];
+    let i;
+
+    for (i = 0; i < data.length; i++) {
+      if (
+        data[i].message.includes("== Current goal ==========================")
+      ) {
+        let message = data[i].message.slice(43,-43);
+        let messages = message.split("----------------------------------------")
+
+        let curentobj = messages.pop();
+        let j= 0;
+        let goalhypothesis = [];
+
+        for(j=0;j<messages.length;j++){
+            let hypo = messages[j].split("\n");
+            goalhypothesis = goalhypothesis.concat(hypo);
+        }
+
+
+        goalhypothesis.pop();
+
+        if(curentobj.startsWith("\n")){
+          curentobj = curentobj.substr(1);
+        }
+
+        this.dataView.push({
+          range: data[i].range,
+          goal: curentobj,
+          hypothesis : goalhypothesis
+        });
+      }
+      else{
+        diagnostics.push(data[i]);
+      }
+    }
+    this.setGoals();
+    return diagnostics;
+  }
+
+  ////////////// A LIST OF OLD FUNCTIONS ////////////////////////
+/*
   // A function to update the the goals list when it's needed
   updateSubProof() {
     //This function was created to handle a tree view and need to be rewritten
@@ -200,12 +415,8 @@ class DeduktiEditorView {
     span.classList.remove("icon-key", "icon-link");
     span.classList.add("icon-eye-watch");
   }
-
-  //get the data sent by the server ( seems useless now and not complexity-wise smart)
-  set_data_array(data_server) {
-    this.data_proof_array = data_server;
-  }
-
+*/
 }
+
 
 exports.default = DeduktiEditorView;
