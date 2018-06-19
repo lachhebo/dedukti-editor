@@ -248,6 +248,19 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     this.deduktiEditorView.but3.addEventListener("click", () => {
       module.exports.command3();
     });
+
+
+    let gobutton = this.deduktiEditorView.getElement().getElementsByClassName("gotoproof");
+
+    let i=0;
+    for(i=0;i<gobutton.length;i++){
+      gobutton[i].addEventListener("click", () => {
+        console.log("butttttons");
+      });
+    }
+
+    //gobutton[i].addEventListener("click", this.deduktiEditorView.goToProof);
+
   }
 
   //In case the a key binding or a button is activated, we send message to the server

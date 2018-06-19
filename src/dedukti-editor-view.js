@@ -281,10 +281,29 @@ class DeduktiEditorView {
         let liste_j = document.createElement("li");
         liste_j.classList.add("goals");
         this.list_of_proof.appendChild(liste_j);
-        liste_j.innerText = this.dataView[i].goal;
+
+        let div = document.createElement("div");
+        div.classList.add("inline-block");
+        liste_j.appendChild(div);
+
+        let text = document.createElement("span");
+        div.appendChild(text);
+        text.innerText = this.dataView[i].goal;
+
+
+        let btn = document.createElement("button");
+        btn.classList.add("btn","btn-xs","btn-info", "gotoproof");
+        btn.textContent = "go ! ";
+        liste_j.appendChild(btn);
+
+        //liste_j.innerText = this.dataView[i].goal;
         datadisplayed.push(this.dataView[i].goal);
       }
     }
+  }
+
+  goToProof(){
+    console.log("button");
   }
 
   cleanGoals(){
@@ -333,7 +352,7 @@ class DeduktiEditorView {
         diagnostics.push(data[i]);
       }
     }
-    //this.setGoals();
+    this.setGoals();
     return diagnostics;
   }
 
