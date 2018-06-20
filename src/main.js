@@ -3,7 +3,11 @@
 const dk = require("./dedukti-editor-view");
 const URL = require("url");
 const child_process = require("child_process");
-const { AutoLanguageClient, DownloadFile, Convert } = require("atom-languageclient");
+const {
+  AutoLanguageClient,
+  DownloadFile,
+  Convert
+} = require("atom-languageclient");
 
 class DeduktiLanguageClient extends AutoLanguageClient {
   constructor() {
@@ -29,22 +33,21 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   activate() {
     super.activate();
 
-    // We want the server to be launched if a .dk file is opened on the home directory
+    // create the view and variables we will need to handle the extensions.
+    this.deduktiEditorView = new dk.default();
+    this.editor_list = new Array();
+    this.buttons_listened = 0;
 
+    // We want the server to be launched if a .dk file is opened on the home directory
     Object.getPrototypeOf(
       this._serverManager
     ).determineProjectPath = function determineProjectPath(textEditor) {
-      const filePath = textEditor.getPath();
+      const filePath = textEditor.getPath(); //The project path is always the path of the opened file (it' a hack)
       if (filePath == null) {
         return null;
       }
       return filePath;
     }.bind(this._serverManager);
-
-    // create the view and variables we will need to handle it.
-    this.deduktiEditorView = new dk.default();
-    this.editor_list = new Array();
-    this.buttons_listened = 0;
 
     // add some keybindings:
     atom.commands.add("atom-workspace", {
@@ -62,7 +65,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     atom.commands.add("atom-workspace", {
       "dedukti-editor:last": () => this.deduktiEditorView.lastFocus()
     });
-    //"ctrl-alt-p": "dedukti-editor:next"
 
     //this.deduktiEditorView.initialise_exemple();
 
@@ -79,7 +81,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
             this.add_event_cursor(editor, this.editor_list);
             if (this.buttons_listened === 0) {
               this.addeventbutton();
-              this.buttons_listened = 1;
+              this.buttons_listened = 1; //we just want one listener
             }
           } else {
             //hide the view
@@ -103,7 +105,10 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     // we hack onPublishDiagnostics message before it is received by atom and handle positive message
     connection.onPublishDiagnostics = function(callback) {
       let mycallback = function(params) {
-        params.diagnostics = this.deduktiEditorView.updateDiagnostics(params.diagnostics, Convert.uriToPath(params.uri));
+        params.diagnostics = this.deduktiEditorView.updateDiagnostics(
+          params.diagnostics,
+          Convert.uriToPath(params.uri)
+        );
         let mydiagnostics = this.colorizebuffer(params);
         params.diagnostics = mydiagnostics;
         callback(params);
@@ -127,9 +132,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   startServerProcess(projectPath) {
     // we get the command and args from the setting panel
-    var command = atom.config.get(
-      "dedukti-editor.DeduktiSettings.lspServerPath"
-    );
+    var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
 
     /* // Debug for developper (isma)
@@ -187,7 +190,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     // Then we put new color markers on this editor
     for (i = 0; i < params.diagnostics.length; i++) {
       if (params.diagnostics[i].message === "OK") {
-         // /*  Hence Green
+        //  Hence Green
         var marker = editor.markScreenRange([
           [
             params.diagnostics[i].range.start.line,
@@ -203,7 +206,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
           type: "line-number",
           class: "Completed_lines"
         });
-        //*/
       } else {
         // Hence, in red
         var marker = editor.markScreenRange([
@@ -255,7 +257,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     this.deduktiEditorView.but3.addEventListener("click", () => {
       module.exports.command3();
     });
-
   }
 
   //In case the a key binding or a button is activated, we send message to the server
@@ -278,12 +279,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       "ProofAssistant/CapturedKey3",
       []
     );
-  }
-
-  updateView(e) {
-    //Depreceated
-    //a function to update a part of the view (seems useless for the moment)
-    this.deduktiEditorView.updateSubProof(e);
   }
 
 }
