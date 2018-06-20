@@ -23,7 +23,7 @@ class DeduktiEditorView {
     //The tree
     this.list_of_proof = this.createCustomElement(
       "ol",
-      [],
+      ["list-group"],
       null,
       null,
       this.element
@@ -106,9 +106,15 @@ class DeduktiEditorView {
       this.div_button_first
     );
 
+    // DATA :
     this.dataView = [];
+
+    // EVENT LISTENER :
+
+    this.disposebutton = []
   }
 
+  /* This function help us creating the element we need on our web page */
   createCustomElement(type, classlist, id, textcontent, parentnode) {
     let element = document.createElement(type);
     let i;
@@ -130,6 +136,7 @@ class DeduktiEditorView {
     return element;
   }
 
+  /* A couple of basic functions to handle the view */
   getElement() {
     return this.element;
   }
@@ -156,20 +163,20 @@ class DeduktiEditorView {
 
   // An example to show how the view is looking.
   initialise_exemple() {
-    let i = 0;
-    for (i = 0; i < 20; i++) {
-      let liste_i = document.createElement("li");
-      liste_i.classList.add("focus_data");
-      this.list_of_hypothesis.appendChild(liste_i);
-      liste_i.innerText = "test" + i;
+    // Just an example
+    //editor
+    let i;
+    let datadisplayed = [];
+    for (i = 0; i < this.dataView.length; i++) {
+      if (!datadisplayed.includes(this.dataView[i].goal)) {
+        datadisplayed.push({
+          goal: this.dataView[i].goal,
+          point: this.dataView[i].range.start
+        });
+      }
     }
 
-    for (i = 0; i < 10; i++) {
-      let liste_j = document.createElement("li");
-      liste_j.classList.add("goals");
-      this.list_of_proof.appendChild(liste_j);
-      liste_j.innerText = "test" + i;
-    }
+    this.setGoals(datadisplayed,atom.workspace.getActiveTextEditor());
   }
 
   // Returns an object that can be retrieved when package is activated
@@ -180,12 +187,31 @@ class DeduktiEditorView {
     this.element.remove();
   }
 
-  //update the current objective
-  setCurrentObjectif(current) {
-    this.current_objective.innerText = current;
+  /* We get the data from diagnostics for the moment */
+  updateDiagnostics(data, text_editor_path) {
+    this.dataView = [];
+    let i;
+
+    for (i = 0; i < data.length; i++) {
+      if (data[i].goal_fg != null) {
+        let curentobj = data[i].goal_fg.type;
+        let goalhypothesis = data[i].goal_fg.hyps;
+
+        this.dataView.push({
+          path: text_editor_path,
+          range: data[i].range,
+          goal: curentobj,
+          hypothesis: goalhypothesis
+        });
+      }
+    }
+
+    //this.initialise_exemple();
+
+    return data;
   }
 
-  // A function to update the view when it's needed
+  // A function to update the focus part of the view when it's needed
   updateView(selection, editor) {
     let path = editor.getPath();
     let i = 0;
@@ -224,26 +250,84 @@ class DeduktiEditorView {
     }
   }
 
-  rangewithin(dvpath, dvRS, dvRE, dvCS, dvCE, apath, aR, aC) {
-    if (dvpath != apath) {
-      return false;
-    }
-    if (dvRS > aR) {
-      return false;
-    }
-    if (dvRE < aR) {
-      return false;
-    }
-    if (dvRS === aR && dvCS > aC) {
-      return false;
-    }
-    if (dvRE === aR && dvCE < aC) {
-      return false;
-    }
+  /* A couple of function tu update each part of the view */
 
-    return true;
+  //update the current objective
+  setCurrentObjectif(current) {
+    this.current_objective.innerText = current;
   }
 
+  //update the hypothesis list
+  setHypothesis(hypothesis) {
+    let i = 0;
+    this.cleanHypothesis();
+
+    for (i = 0; i < hypothesis.length; i++) {
+      let liste_i = document.createElement("li");
+      liste_i.classList.add("focus_data");
+      this.list_of_hypothesis.appendChild(liste_i);
+      liste_i.innerText = hypothesis[i];
+    }
+  }
+
+  //update the goals list (need a bit of rewrite)
+  setGoals(goallist,editor) {
+    this.cleanGoals();
+    let i = 0;
+
+    for (i = 0; i < goallist.length; i++) {
+      let liste_j = document.createElement("li");
+      liste_j.classList.add("goals");
+      this.list_of_proof.appendChild(liste_j);
+
+      let div = document.createElement("div");
+      div.classList.add("inline-block");
+      liste_j.appendChild(div);
+
+      let text = document.createElement("span");
+      div.appendChild(text);
+      text.innerText = goallist[i].goal;
+
+      let btn = document.createElement("button");
+      btn.classList.add("btn", "btn-xs", "btn-info", "gotoproof");
+      btn.textContent = "go ! ";
+      liste_j.appendChild(btn);
+
+
+      this.addNewListener(goallist,i, btn,editor);
+
+    }
+  }
+
+  addNewListener(goallist,index,button,editor){
+
+    button.addEventListener("click", function(){
+      console.log(goallist,index);
+      editor.setCursorScreenPosition([
+          goallist[index].point.line,
+          goallist[index].point.character
+      ]);
+    })
+  }
+
+  /* A couple of functions to clean the view */
+  cleanHypothesis() {
+    while (this.list_of_hypothesis.firstChild) {
+      //The list is LIVE so it will re-index each call
+      this.list_of_hypothesis.removeChild(this.list_of_hypothesis.firstChild);
+    }
+  }
+
+  cleanGoals() {
+    while (this.list_of_proof.firstChild) {
+      //The list is LIVE so it will re-index each call
+      this.list_of_proof.removeChild(this.list_of_proof.firstChild);
+    }
+  }
+
+  /* A couple of function to enhance the user experience */
+
+  //The aim of this function is to help the user finding which part of the goals list is related to the focus.
   markGoal(goalstring) {
     /*    let oldgoal = this.list_of_proof.getElementsByClassName("text-info");
     console.log(oldgoal);
@@ -269,129 +353,72 @@ class DeduktiEditorView {
     }
   }
 
-  setHypothesis(hypothesis) {
-    let i = 0;
-    this.cleanHypothesis();
-
-    for (i = 0; i < hypothesis.length; i++) {
-      let liste_i = document.createElement("li");
-      liste_i.classList.add("focus_data");
-      this.list_of_hypothesis.appendChild(liste_i);
-      liste_i.innerText = hypothesis[i];
-    }
-  }
-
-  cleanHypothesis() {
-    while (this.list_of_hypothesis.firstChild) {
-      //The list is LIVE so it will re-index each call
-      this.list_of_hypothesis.removeChild(this.list_of_hypothesis.firstChild);
-    }
-  }
-
-  setGoals() {
-    this.cleanGoals();
-    let i = 0;
-    let datadisplayed = [];
-
-    for (i = 0; i < this.dataView.length; i++) {
-      if (!datadisplayed.includes(this.dataView[i].goal)) {
-        let liste_j = document.createElement("li");
-        liste_j.classList.add("goals");
-        this.list_of_proof.appendChild(liste_j);
-
-        let div = document.createElement("div");
-        div.classList.add("inline-block");
-        liste_j.appendChild(div);
-
-        let text = document.createElement("span");
-        div.appendChild(text);
-        text.innerText = this.dataView[i].goal;
-
-        let btn = document.createElement("button");
-        btn.classList.add("btn", "btn-xs", "btn-info", "gotoproof");
-        btn.textContent = "go ! ";
-        liste_j.appendChild(btn);
-
-        //liste_j.innerText = this.dataView[i].goal;
-        datadisplayed.push(this.dataView[i].goal);
-      }
-    }
-  }
-
+  //The aim of this function is to redirect the user cursor to a proof.
   goToProof() {
     //console.log("button");
   }
 
-  cleanGoals() {
-    while (this.list_of_proof.firstChild) {
-      //The list is LIVE so it will re-index each call
-      this.list_of_proof.removeChild(this.list_of_proof.firstChild);
-    }
-  }
-
-  updateDiagnostics(data, text_editor_path) {
-    this.dataView = [];
-    let i;
-
-    for (i = 0; i < data.length; i++) {
-      if (data[i].goal_fg != null) {
-        let curentobj = data[i].goal_fg.type;
-        let goalhypothesis = data[i].goal_fg.hyps;
-
-        this.dataView.push({
-          path: text_editor_path,
-          range: data[i].range,
-          goal: curentobj,
-          hypothesis: goalhypothesis
-        });
-      }
-    }
-
-    return data;
-  }
-
+  /* Two function to handle key binding */
   nextFocus() {
     let editor = atom.workspace.getActiveTextEditor();
     let cursor = editor.getCursorScreenPosition();
     let path = editor.getPath();
-    let point =  this.closerNextRange(path,cursor.row,cursor.column);
+    let point = this.closerNextRange(path, cursor.row, cursor.column);
 
-    if ( point != null){
+    if (point != null) {
       editor.setCursorScreenPosition([point.line, point.character]);
     }
-
   }
 
   lastFocus() {
     let editor = atom.workspace.getActiveTextEditor();
     let cursor = editor.getCursorScreenPosition();
     let path = editor.getPath();
-    let point =  this.closerLastRange(path,cursor.row,cursor.column);
+    let point = this.closerLastRange(path, cursor.row, cursor.column);
 
-    if ( point != null){
+    if (point != null) {
       editor.setCursorScreenPosition([point.line, point.character]);
     }
-
   }
 
-  closerLastRange(path, row, column){
+  ///* A couple of functions to deal with ranges */
+  rangewithin(dvpath, dvRS, dvRE, dvCS, dvCE, apath, aR, aC) {
+    if (dvpath != apath) {
+      return false;
+    }
+    if (dvRS > aR) {
+      return false;
+    }
+    if (dvRE < aR) {
+      return false;
+    }
+    if (dvRS === aR && dvCS > aC) {
+      return false;
+    }
+    if (dvRE === aR && dvCE < aC) {
+      return false;
+    }
+
+    return true;
+  }
+
+  closerLastRange(path, row, column) {
     let i;
     let candidate = [];
     let min;
     let min_index;
 
     for (i = 0; i < this.dataView.length; i++) {
-      if(this.dataView[i].path === path){
-        if(this.dataView[i].range.end.line < row ) {
-          let travel = row -this.dataView[i].range.end.line;
+      if (this.dataView[i].path === path) {
+        if (this.dataView[i].range.end.line < row) {
+          let travel = row - this.dataView[i].range.end.line;
           candidate.push({
             distance: travel,
             index: i
           });
-        }
-        else if(this.dataView[i].range.end.line === row ){
-          if(this.dataView[i].range.end.character < column){
-            let travel = (column - this.dataView[i].range.end.character)/10 ;
+        } else if (this.dataView[i].range.end.line === row) {
+          if (this.dataView[i].range.end.character < column) {
+            let travel = (column - this.dataView[i].range.end.character) / 10;
             candidate.push({
               distance: travel,
               index: i
@@ -401,41 +428,38 @@ class DeduktiEditorView {
       }
     }
 
-    if(candidate.length>0){
+    if (candidate.length > 0) {
       min = candidate[0].distance;
       min_index = candidate[0].index;
-      for(i=1;i<candidate.length;i++){
-        if(candidate[i].distance < min){
+      for (i = 1; i < candidate.length; i++) {
+        if (candidate[i].distance < min) {
           min = candidate[i].distance;
-          min_index =  candidate[i].index;
+          min_index = candidate[i].index;
         }
       }
-      return this.dataView[min_index].range.start;
+      return this.dataView[min_index].range.end;
     }
 
     return null;
-
   }
 
-  closerNextRange(path, row, column){
-
+  closerNextRange(path, row, column) {
     let i;
     let candidate = [];
     let min;
     let min_index;
 
     for (i = 0; i < this.dataView.length; i++) {
-      if(this.dataView[i].path === path){
-        if(this.dataView[i].range.start.line > row ) {
-          let travel = this.dataView[i].range.start.line - row ;
+      if (this.dataView[i].path === path) {
+        if (this.dataView[i].range.start.line > row) {
+          let travel = this.dataView[i].range.start.line - row;
           candidate.push({
             distance: travel,
             index: i
           });
-        }
-        else if(this.dataView[i].range.start.line === row ){
-          if(this.dataView[i].range.start.character > column){
-            let travel = (this.dataView[i].range.start.character - column)/10 ;
+        } else if (this.dataView[i].range.start.line === row) {
+          if (this.dataView[i].range.start.character > column) {
+            let travel = (this.dataView[i].range.start.character - column) / 10;
             candidate.push({
               distance: travel,
               index: i
@@ -445,21 +469,20 @@ class DeduktiEditorView {
       }
     }
 
-    if(candidate.length>0){
+    if (candidate.length > 0) {
       min = candidate[0].distance;
       min_index = candidate[0].index;
-      for(i=1; i<candidate.length; i++){
-        if(candidate[i].distance < min){
+      for (i = 1; i < candidate.length; i++) {
+        if (candidate[i].distance < min) {
           min = candidate[i].distance;
-          min_index =  candidate[i].index;
+          min_index = candidate[i].index;
         }
       }
-      return this.dataView[min_index].range.start;
+      return this.dataView[min_index].range.end;
     }
 
     return null;
-
-}
+  }
 
   ////////////// A LIST OF OLD FUNCTIONS ////////////////////////
   /*
