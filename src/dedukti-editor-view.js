@@ -72,7 +72,7 @@ class DeduktiEditorView {
     this.div_button = this.createCustomElement(
       "div",
       ["btn-toolbar", "proof-button"],
-      [],
+      [{name : "align", value:"center"}],
       null,
       this.element
     );
@@ -86,28 +86,52 @@ class DeduktiEditorView {
       this.div_button
     );
 
+
     // Buttons :
     this.but1 = this.createCustomElement(
       "button",
       ["btn"],
       [{ name: "id", value: "first" }],
-      "Bouton 1",
+      "Update",
       this.div_button_first
     );
     this.but2 = this.createCustomElement(
       "button",
       ["btn"],
       [{ name: "id", value: "second" }],
-      "Bouton 2",
+      "Next Step",
       this.div_button_first
     );
     this.but3 = this.createCustomElement(
       "button",
       ["btn"],
       [{ name: "id", value: "third" }],
-      "Bouton 3",
+      "Previous Step",
       this.div_button_first
     );
+
+    //Second group of buttons :
+
+    //<label class='input-label'><input class='input-toggle' type='checkbox' checked> Toggle</label>
+
+    this.updatetype  = this.createCustomElement(
+      "label",
+      ["input-label"],
+      [],
+      "update Automatically ",
+      this.div_button
+    )
+
+    this.input  = this.createCustomElement(
+      "input",
+      ["input-toggle"],
+      [{name:"type", value:"checkbox"}],
+      null,
+      this.updatetype
+    )
+
+
+
   }
 
   /* This function help us creating the element we need on our web page */
