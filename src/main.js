@@ -56,6 +56,13 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     atom.commands.add("atom-workspace", {
       "dedukti-editor:command3": () => this.command3()
     });
+    atom.commands.add("atom-workspace", {
+      "dedukti-editor:next": () => this.deduktiEditorView.nextFocus()
+    });
+    atom.commands.add("atom-workspace", {
+      "dedukti-editor:last": () => this.deduktiEditorView.lastFocus()
+    });
+    //"ctrl-alt-p": "dedukti-editor:next"
 
     //this.deduktiEditorView.initialise_exemple();
 
@@ -96,7 +103,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     // we hack onPublishDiagnostics message before it is received by atom and handle positive message
     connection.onPublishDiagnostics = function(callback) {
       let mycallback = function(params) {
-        //console.log(params.diagnostics);
         params.diagnostics = this.deduktiEditorView.updateDiagnostics(params.diagnostics, Convert.uriToPath(params.uri));
         let mydiagnostics = this.colorizebuffer(params);
         params.diagnostics = mydiagnostics;
@@ -255,7 +261,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     let i=0;
     for(i=0;i<gobutton.length;i++){
       gobutton[i].addEventListener("click", () => {
-        console.log("butttttons");
       });
     }
 

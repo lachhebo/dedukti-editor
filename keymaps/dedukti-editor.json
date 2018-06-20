@@ -2,6 +2,8 @@
   "atom-text-editor": {
     "ctrl-alt-i": "dedukti-editor:command1",
     "ctrl-alt-x": "dedukti-editor:command2",
-    "ctrl-alt-d": "dedukti-editor:command3"
+    "ctrl-alt-d": "dedukti-editor:command3",
+    "ctrl-alt-p": "dedukti-editor:next",
+    "ctrl-alt-m": "dedukti-editor:last"
   }
 }

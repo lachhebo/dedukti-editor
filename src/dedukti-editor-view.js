@@ -59,7 +59,7 @@ class DeduktiEditorView {
     //Current objective
     this.current_objective = this.createCustomElement(
       "h3",
-      ["proof-objectif","text-highlight"],
+      ["proof-objectif", "text-highlight"],
       null,
       "Exemple d'objectif courant",
       this.element
@@ -187,30 +187,29 @@ class DeduktiEditorView {
 
   // A function to update the view when it's needed
   updateView(selection, editor) {
-    console.log(editor);
     let path = editor.getPath();
     let i = 0;
-    //console.log(selection);
     if (
       selection.newScreenRange.start.row == selection.newScreenRange.end.row &&
       selection.newScreenRange.start.column ==
         selection.newScreenRange.end.column
     ) {
-      //console.log("new cusor detected");
       let row = selection.newScreenRange.start.row;
-      let row_end = selection.newScreenRange.end.row;
       let column = selection.newScreenRange.start.column;
-      let column_end = selection.newScreenRange.end.column;
       let none_objective = 0;
 
       for (i = 0; i < this.dataView.length; i++) {
-        //console.log(this.dataView[i].range)
         if (
-          this.dataView[i].path === path &&
-          this.dataView[i].range.start.line <= row &&
-          this.dataView[i].range.end.line >= row_end &&
-          this.dataView[i].range.start.character <= column &&
-          this.dataView[i].range.end.character >= column_end
+          this.rangewithin(
+            this.dataView[i].path,
+            this.dataView[i].range.start.line,
+            this.dataView[i].range.end.line,
+            this.dataView[i].range.start.character,
+            this.dataView[i].range.end.character,
+            path,
+            row,
+            column
+          )
         ) {
           this.setCurrentObjectif(this.dataView[i].goal);
           this.setHypothesis(this.dataView[i].hypothesis);
@@ -218,44 +217,63 @@ class DeduktiEditorView {
           none_objective = 1;
         }
       }
-      if(none_objective === 0){
+      if (none_objective === 0) {
         this.setCurrentObjectif("");
         this.cleanHypothesis();
       }
     }
   }
 
-  markGoal(goalstring){
-/*    let oldgoal = this.list_of_proof.getElementsByClassName("text-info");
+  rangewithin(dvpath, dvRS, dvRE, dvCS, dvCE, apath, aR, aC) {
+    if (dvpath != apath) {
+      return false;
+    }
+    if (dvRS > aR) {
+      return false;
+    }
+    if (dvRE < aR) {
+      return false;
+    }
+    if (dvRS === aR && dvCS > aC) {
+      return false;
+    }
+    if (dvRE === aR && dvCE < aC) {
+      return false;
+    }
+
+    return true;
+  }
+
+  markGoal(goalstring) {
+    /*    let oldgoal = this.list_of_proof.getElementsByClassName("text-info");
     console.log(oldgoal);
     if( oldgoal = null){
       oldgoal.classList.remove("text-info");
     }
-*/
+    */
 
     let goals = this.list_of_proof.getElementsByClassName("goals");
     //console.log(goals);
     let i = 0;
-    let find =0;
+    let find = 0;
 
-    while(find ===0 && i<goals.length){
-      console.log(goals[i].innerText);
-      console.log(goalstring);
-      console.log(goalstring.includes(goals[i].innerText))
-      if(goalstring.includes(goals[i].innerText)){
+    while (find === 0 && i < goals.length) {
+      //console.log(goals[i].innerText);
+      //console.log(goalstring);
+      //console.log(goalstring.includes(goals[i].innerText));
+      if (goalstring.includes(goals[i].innerText)) {
         goals[i].classList.add("text-info");
         find = 1;
       }
       i++;
     }
-
   }
 
-  setHypothesis(hypothesis){
+  setHypothesis(hypothesis) {
     let i = 0;
     this.cleanHypothesis();
 
-    for (i = 0; i <hypothesis.length; i++) {
+    for (i = 0; i < hypothesis.length; i++) {
       let liste_i = document.createElement("li");
       liste_i.classList.add("focus_data");
       this.list_of_hypothesis.appendChild(liste_i);
@@ -263,21 +281,20 @@ class DeduktiEditorView {
     }
   }
 
-  cleanHypothesis(){
+  cleanHypothesis() {
     while (this.list_of_hypothesis.firstChild) {
       //The list is LIVE so it will re-index each call
       this.list_of_hypothesis.removeChild(this.list_of_hypothesis.firstChild);
     }
   }
 
-  setGoals(){
+  setGoals() {
     this.cleanGoals();
-    let i=0;
+    let i = 0;
     let datadisplayed = [];
 
-    for (i = 0; i <this.dataView.length; i++) {
-      if(!datadisplayed.includes(this.dataView[i].goal)){
-
+    for (i = 0; i < this.dataView.length; i++) {
+      if (!datadisplayed.includes(this.dataView[i].goal)) {
         let liste_j = document.createElement("li");
         liste_j.classList.add("goals");
         this.list_of_proof.appendChild(liste_j);
@@ -290,9 +307,8 @@ class DeduktiEditorView {
         div.appendChild(text);
         text.innerText = this.dataView[i].goal;
 
-
         let btn = document.createElement("button");
-        btn.classList.add("btn","btn-xs","btn-info", "gotoproof");
+        btn.classList.add("btn", "btn-xs", "btn-info", "gotoproof");
         btn.textContent = "go ! ";
         liste_j.appendChild(btn);
 
@@ -302,62 +318,151 @@ class DeduktiEditorView {
     }
   }
 
-  goToProof(){
-    console.log("button");
+  goToProof() {
+    //console.log("button");
   }
 
-  cleanGoals(){
+  cleanGoals() {
     while (this.list_of_proof.firstChild) {
       //The list is LIVE so it will re-index each call
       this.list_of_proof.removeChild(this.list_of_proof.firstChild);
     }
   }
 
-  updateDiagnostics(data,text_editor_path) {
-    console.log(text_editor_path);
+  updateDiagnostics(data, text_editor_path) {
     this.dataView = [];
-    let diagnostics = [];
     let i;
 
     for (i = 0; i < data.length; i++) {
-      if (
-        data[i].message.includes("== Current goal ==========================")
-      ) {
-        let message = data[i].message.slice(43,-43);
-        let messages = message.split("----------------------------------------")
-
-        let curentobj = messages.pop();
-        let j= 0;
-        let goalhypothesis = [];
-
-        for(j=0;j<messages.length;j++){
-            let hypo = messages[j].split("\n");
-            goalhypothesis = goalhypothesis.concat(hypo);
-        }
-
-        goalhypothesis.pop();
-
-        if(curentobj.startsWith("\n")){
-          curentobj = curentobj.substr(1);
-        }
+      if (data[i].goal_fg != null) {
+        let curentobj = data[i].goal_fg.type;
+        let goalhypothesis = data[i].goal_fg.hyps;
 
         this.dataView.push({
-          path : text_editor_path,
+          path: text_editor_path,
           range: data[i].range,
           goal: curentobj,
-          hypothesis : goalhypothesis
+          hypothesis: goalhypothesis
         });
       }
-      else{
-        diagnostics.push(data[i]);
-      }
     }
-    this.setGoals();
-    return diagnostics;
+
+    return data;
   }
 
+  nextFocus() {
+    let editor = atom.workspace.getActiveTextEditor();
+    let cursor = editor.getCursorScreenPosition();
+    let path = editor.getPath();
+    let point =  this.closerNextRange(path,cursor.row,cursor.column);
+
+    if ( point != null){
+      editor.setCursorScreenPosition([point.line, point.character]);
+    }
+
+  }
+
+  lastFocus() {
+    let editor = atom.workspace.getActiveTextEditor();
+    let cursor = editor.getCursorScreenPosition();
+    let path = editor.getPath();
+    let point =  this.closerLastRange(path,cursor.row,cursor.column);
+
+    if ( point != null){
+      editor.setCursorScreenPosition([point.line, point.character]);
+    }
+
+  }
+
+  closerLastRange(path, row, column){
+    let i;
+    let candidate = [];
+    let min;
+    let min_index;
+
+    for (i = 0; i < this.dataView.length; i++) {
+      if(this.dataView[i].path === path){
+        if(this.dataView[i].range.end.line < row ) {
+          let travel = row -this.dataView[i].range.end.line;
+          candidate.push({
+            distance: travel,
+            index: i
+          });
+        }
+        else if(this.dataView[i].range.end.line === row ){
+          if(this.dataView[i].range.end.character < column){
+            let travel = (column - this.dataView[i].range.end.character)/10 ;
+            candidate.push({
+              distance: travel,
+              index: i
+            });
+          }
+        }
+      }
+    }
+
+    if(candidate.length>0){
+      min = candidate[0].distance;
+      min_index = candidate[0].index;
+      for(i=1;i<candidate.length;i++){
+        if(candidate[i].distance < min){
+          min = candidate[i].distance;
+          min_index =  candidate[i].index;
+        }
+      }
+      return this.dataView[min_index].range.start;
+    }
+
+    return null;
+
+  }
+
+  closerNextRange(path, row, column){
+
+    let i;
+    let candidate = [];
+    let min;
+    let min_index;
+
+    for (i = 0; i < this.dataView.length; i++) {
+      if(this.dataView[i].path === path){
+        if(this.dataView[i].range.start.line > row ) {
+          let travel = this.dataView[i].range.start.line - row ;
+          candidate.push({
+            distance: travel,
+            index: i
+          });
+        }
+        else if(this.dataView[i].range.start.line === row ){
+          if(this.dataView[i].range.start.character > column){
+            let travel = (this.dataView[i].range.start.character - column)/10 ;
+            candidate.push({
+              distance: travel,
+              index: i
+            });
+          }
+        }
+      }
+    }
+
+    if(candidate.length>0){
+      min = candidate[0].distance;
+      min_index = candidate[0].index;
+      for(i=1; i<candidate.length; i++){
+        if(candidate[i].distance < min){
+          min = candidate[i].distance;
+          min_index =  candidate[i].index;
+        }
+      }
+      return this.dataView[min_index].range.start;
+    }
+
+    return null;
+
+}
+
   ////////////// A LIST OF OLD FUNCTIONS ////////////////////////
-/*
+  /*
   // A function to update the the goals list when it's needed
   updateSubProof() {
     //This function was created to handle a tree view and need to be rewritten
@@ -441,6 +546,5 @@ class DeduktiEditorView {
   }
 */
 }
-
 
 exports.default = DeduktiEditorView;
