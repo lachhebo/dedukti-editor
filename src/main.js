@@ -187,7 +187,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     // Then we put new color markers on this editor
     for (i = 0; i < params.diagnostics.length; i++) {
       if (params.diagnostics[i].message === "OK") {
-        // Hence Green
+         // /*  Hence Green
         var marker = editor.markScreenRange([
           [
             params.diagnostics[i].range.start.line,
@@ -200,9 +200,10 @@ class DeduktiLanguageClient extends AutoLanguageClient {
         ]);
         marker.setProperties({ persistent: false, invalidate: "touch" }); //The color is diseappearing when 'touch'
         let decoration = editor.decorateMarker(marker, {
-          type: "text",
+          type: "line-number",
           class: "Completed_lines"
         });
+        //*/
       } else {
         // Hence, in red
         var marker = editor.markScreenRange([

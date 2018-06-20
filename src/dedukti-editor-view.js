@@ -6,7 +6,7 @@ class DeduktiEditorView {
     this.element = this.createCustomElement(
       "div",
       ["dedukti-editor"],
-      "proofview",
+      [{ name: "id", value: "proofview" }],
       null,
       null
     );
@@ -15,16 +15,16 @@ class DeduktiEditorView {
     this.proof = this.createCustomElement(
       "h2",
       ["highlight", "title-goals"],
-      null,
+      [],
       "Goals",
       this.element
     );
 
     //The tree
     this.list_of_proof = this.createCustomElement(
-      "ol",
-      ["list-group"],
-      null,
+      "table",
+      ["goalstable"],
+      [{ name: "align", value: "center" }],
       null,
       this.element
     );
@@ -33,7 +33,7 @@ class DeduktiEditorView {
     this.focus = this.createCustomElement(
       "h2",
       ["highlight", "title-goals"],
-      null,
+      [],
       "Focus",
       this.element
     );
@@ -42,7 +42,7 @@ class DeduktiEditorView {
     this.list_of_hypothesis = this.createCustomElement(
       "ol",
       ["list-group", "hypo-list"],
-      null,
+      [],
       null,
       this.element
     );
@@ -51,7 +51,7 @@ class DeduktiEditorView {
     this.bar = this.createCustomElement(
       "hr",
       ["bar-proof"],
-      null,
+      [],
       null,
       this.element
     );
@@ -60,7 +60,7 @@ class DeduktiEditorView {
     this.current_objective = this.createCustomElement(
       "h3",
       ["proof-objectif", "text-highlight"],
-      null,
+      [],
       "Exemple d'objectif courant",
       this.element
     );
@@ -69,7 +69,7 @@ class DeduktiEditorView {
     this.div_button = this.createCustomElement(
       "div",
       ["btn-toolbar", "proof-button"],
-      null,
+      [],
       null,
       this.element
     );
@@ -78,7 +78,7 @@ class DeduktiEditorView {
     this.div_button_first = this.createCustomElement(
       "div",
       ["btn-group"],
-      null,
+      [],
       null,
       this.div_button
     );
@@ -87,21 +87,21 @@ class DeduktiEditorView {
     this.but1 = this.createCustomElement(
       "button",
       ["btn"],
-      "first",
+      [{ name: "id", value: "first" }],
       "Bouton 1",
       this.div_button_first
     );
     this.but2 = this.createCustomElement(
       "button",
       ["btn"],
-      "second",
+      [{ name: "id", value: "second" }],
       "Bouton 2",
       this.div_button_first
     );
     this.but3 = this.createCustomElement(
       "button",
       ["btn"],
-      "third",
+      [{ name: "id", value: "third" }],
       "Bouton 3",
       this.div_button_first
     );
@@ -111,11 +111,11 @@ class DeduktiEditorView {
 
     // EVENT LISTENER :
 
-    this.disposebutton = []
+    this.disposebutton = [];
   }
 
   /* This function help us creating the element we need on our web page */
-  createCustomElement(type, classlist, id, textcontent, parentnode) {
+  createCustomElement(type, classlist, attributes, textcontent, parentnode) {
     let element = document.createElement(type);
     let i;
 
@@ -123,12 +123,14 @@ class DeduktiEditorView {
       element.classList.add(classlist[i]);
     }
 
-    if (id != null) {
-      element.setAttribute("id", id);
+    for (i = 0; i < attributes.length; i++) {
+      element.setAttribute(attributes[i].name, attributes[i].value);
     }
+
     if (textcontent != null) {
       element.textContent = textcontent;
     }
+
     if (parentnode != null) {
       parentnode.appendChild(element);
     }
@@ -176,7 +178,7 @@ class DeduktiEditorView {
       }
     }
 
-    this.setGoals(datadisplayed,atom.workspace.getActiveTextEditor());
+    this.setGoals(datadisplayed, atom.workspace.getActiveTextEditor());
   }
 
   // Returns an object that can be retrieved when package is activated
@@ -206,7 +208,7 @@ class DeduktiEditorView {
       }
     }
 
-    //this.initialise_exemple();
+    this.initialise_exemple();
 
     return data;
   }
@@ -271,43 +273,44 @@ class DeduktiEditorView {
   }
 
   //update the goals list (need a bit of rewrite)
-  setGoals(goallist,editor) {
+  setGoals(goallist, editor) {
     this.cleanGoals();
     let i = 0;
 
     for (i = 0; i < goallist.length; i++) {
-      let liste_j = document.createElement("li");
-      liste_j.classList.add("goals");
-      this.list_of_proof.appendChild(liste_j);
+      let line = document.createElement("tr");
+      line.classList.add("goalline");
+      this.list_of_proof.appendChild(line);
 
-      let div = document.createElement("div");
-      div.classList.add("inline-block");
-      liste_j.appendChild(div);
+      let firstcol = document.createElement("td");
+      firstcol.classList.add("goalcolumn");
+      console.log(firstcol);
+      firstcol.innerText = goallist[i].goal;
+      line.appendChild(firstcol);
 
-      let text = document.createElement("span");
-      div.appendChild(text);
-      text.innerText = goallist[i].goal;
+      let secondcol = document.createElement("td");
+      secondcol.classList.add("goalcolumn");
+      line.appendChild(secondcol);
 
       let btn = document.createElement("button");
-      btn.classList.add("btn", "btn-xs", "btn-info", "gotoproof");
+      btn.classList.add("btn", "btn-xs", "btn-info");
       btn.textContent = "go ! ";
-      liste_j.appendChild(btn);
+      secondcol.appendChild(btn);
 
-
-      this.addNewListener(goallist,i, btn,editor);
-
+      this.addNewListener(goallist, i, btn, editor);
     }
   }
 
-  addNewListener(goallist,index,button,editor){
-
-    button.addEventListener("click", function(){
-      console.log(goallist,index);
+  addNewListener(goallist, index, button, editor) {
+    button.addEventListener("click", function() {
+      //console.log(goallist,index);
       editor.setCursorScreenPosition([
-          goallist[index].point.line,
-          goallist[index].point.character
+        goallist[index].point.line,
+        goallist[index].point.character
       ]);
-    })
+    });
+
+    //this.markgoal(goallist[index].goal);
   }
 
   /* A couple of functions to clean the view */
