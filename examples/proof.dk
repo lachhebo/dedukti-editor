@@ -1,0 +1,104 @@
+(; Data type of booleans. ;)
+
+B : Type.
+
+true : B.
+false : B.
+
+(; Data type of natural numbers. ;)
+
+N : Type.
+
+0 : N.
+s : N -> N.
+
+def 1 := s 0.
+
+(; Addition on natural numbers. ;)
+
+def add : N -> N -> N.
+
+add 0 ?x --> ?x.
+add (s ?x) ?y --> s (add ?x ?y).
+
+#EVAL (add (s 1) (s 1)).
+
+(; Type of data type codes and their interpretation as types. ;)
+
+U : Type.
+
+def T : U -> Type.
+
+bool : U.
+
+T bool --> B.
+
+nat : U.
+
+T nat --> N.
+
+pi : !a : U, (T a -> U) -> U.
+
+T (pi ?a ?f) --> !x:T ?a, T (?f x).
+
+(; Type of propositions and their interpretation as types. ;)
+
+Prop : Type.
+
+def P : Prop -> Type.
+
+all : !a:U, (T a -> Prop) -> Prop.
+
+P (all ?a ?f) --> !x:T ?a, P (?f x).
+
+(; Induction principle on N. ;)
+
+def nat_ind : !p:N -> Prop, P (p 0) -> (!n, P (p n) -> P (p (s n))) -> !n, P (p n).
+
+nat_ind _  ?u _  0      --> ?u.
+nat_ind ?p ?u ?v (s ?n) --> ?v ?n (nat_ind ?p ?u ?v ?n).
+
+(; Boolean equality on N. ;)
+
+def beq : N->N->B.
+
+beq 0 0 --> true.
+beq (s ?x) (s ?y) --> beq ?x ?y.
+beq 0 (s _) --> false.
+beq (s _) 0 --> false.
+
+(; Leibniz equality. ;)
+
+eq : !a, T a -> T a -> Prop.
+
+refl : !a, !x, P (eq a x x).
+
+eqind : !a, !x, !y, P (eq a x y) -> !p : T a -> Prop, P (p x) -> P (p y).
+  (;FIXME: try to infer the type of p.;)
+
+(; s is compatible with Leibniz equality ;)
+
+
+#PROOF s_eq : !x, !y, P (eq nat x y) -> P (eq nat (s x) (s y)). #PRINT.
+#REFINE x => y => xy => _. #PRINT.
+(;FIXME:
+#REFINE eqind nat x y xy (z => eq nat (s x) (s z)) _. #PRINT.
+does not work:
+Cannot solve constraint [?529] ~ [P (eq nat (s x) (s x))]
+[proof.dk, 87:0-52] error while handling a command.
+Typing error.;)
+#REFINE eqind nat x y xy (z => eq nat (s x) (s z)) (refl nat (s x)).
+  (;FIXME: try to infer subterms: nat, x, y, s x, and predicate.;)
+
+(; 0 is right neutral for add. ;)
+
+#PROOF add0r : !n, P (eq nat (add n 0) n). #PRINT.
+  (;FIXME: try to infer nat. ;)
+
+#INFER nat_ind.
+#REFINE (nat_ind (n => eq nat (add n 0) n) ?case0 ?caseS).
+  (;FIXME: try to infer predicate. ;) #PRINT.
+(; Case S ;)
+#REFINE n => hn => _. #PRINT.
+#SIMPL. #PRINT.
+#REFINE s_eq _ _ hn. #PRINT.
