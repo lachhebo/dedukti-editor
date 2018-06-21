@@ -14,7 +14,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     // at the opening of Atom
     super();
 
-    //atom.config.set("core.debugLSP", true); // Debug by default;
+    atom.config.set("core.debugLSP", true); // Debug by default;
     this.config = require("./config.json"); // To modify the configuration, check the setting view
   }
 
@@ -119,6 +119,13 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       );
     };
 
+    /*
+    connection.didChangeTextDocument = function(params) {
+      if(atom.config.get("dedukti-editor.DeduktiSettings.automaticUpdate")){
+        connection._sendNotification('textDocument/didChange', params);
+      }
+    }
+    */
     this.connect_server = connection;
 
     /*
@@ -131,14 +138,15 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   }
 
   startServerProcess(projectPath) {
+    //await new Promise(resolve => atom.whenShellEnvironmentLoaded(resolve));
     // we get the command and args from the setting panel
     var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
 
     /* // Debug for developper (isma)
-    var command_test = "./lplsp_test";
+    var command_test = "./lp-lsp_test";
     const childProcess = child_process.spawn(command_test, args,{
-      cwd: "/home/isma/Documents/dedukti-editor/src"
+      cwd: "/home/isma/"
     });
      // */
 
@@ -247,7 +255,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   addeventbutton() {
     // add some listener for buttons
 
-/*
+    /*
     atom.commands.add("atom-workspace", {
       "dedukti-editor:next": () => this.deduktiEditorView.nextFocus()
     });
@@ -255,7 +263,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       "dedukti-editor:last": () => this.deduktiEditorView.lastFocus()
     });
 
-*/
+    */
     this.deduktiEditorView.but1.addEventListener("click", () => {
       module.exports.command1();
     });
@@ -267,6 +275,16 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     this.deduktiEditorView.but3.addEventListener("click", () => {
       this.deduktiEditorView.lastFocus();
     });
+    /*
+    this.deduktiEditorView.input.addEventListener("click", () => {
+      if(atom.config.get("dedukti-editor.DeduktiSettings.automaticUpdate")){
+        atom.config.set("dedukti-editor.DeduktiSettings.automaticUpdate", false);
+      }
+      else{
+        atom.config.set("dedukti-editor.DeduktiSettings.automaticUpdate", true);
+      }
+    });
+    */
   }
 
   //In case the a key binding or a button is activated, we send message to the server

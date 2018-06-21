@@ -88,13 +88,7 @@ class DeduktiEditorView {
 
 
     // Buttons :
-    this.but1 = this.createCustomElement(
-      "button",
-      ["btn"],
-      [{ name: "id", value: "first" }],
-      "Update",
-      this.div_button_first
-    );
+
     this.but2 = this.createCustomElement(
       "button",
       ["btn"],
@@ -107,6 +101,14 @@ class DeduktiEditorView {
       ["btn"],
       [{ name: "id", value: "third" }],
       "Previous Step",
+      this.div_button_first
+    );
+
+    this.but1 = this.createCustomElement(
+      "button",
+      ["btn"],
+      [{ name: "id", value: "first" }],
+      "Update",
       this.div_button_first
     );
 
@@ -125,10 +127,12 @@ class DeduktiEditorView {
     this.input  = this.createCustomElement(
       "input",
       ["input-toggle"],
-      [{name:"type", value:"checkbox"}],
+      [{name:"type", value:"checkbox"},{name:"checked",value:""}],
       null,
       this.updatetype
     )
+
+    //this.input.setAttribute()
 
 
 
@@ -211,6 +215,7 @@ class DeduktiEditorView {
   /* We get the data from diagnostics for the moment */
   updateDiagnostics(data, text_editor_path) {
     this.FocusView = [];
+    //console.log(data);
     let i;
 
     for (i = 0; i < data.length; i++) {
@@ -289,13 +294,14 @@ class DeduktiEditorView {
     let i = 0;
     this.cleanHypothesis(); // We begin by erased what was displayed before on the hypothesis list
 
+    console.log(hypothesis);
     // Then, we display the hypothesis we want
     for (i = 0; i < hypothesis.length; i++) {
       let list_element = this.createCustomElement(
         "li",
         ["focus_data"],
         [],
-        hypothesis[i],
+        hypothesis[i].hname + " : " + hypothesis[i].htype,
         this.list_of_hypothesis
       );
     }

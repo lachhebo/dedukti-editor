@@ -9,6 +9,10 @@
       "lspServerArgs": {
         "type": "array",
         "default": []
+      },
+      "automaticUpdate": {
+        "type": "boolean",
+        "default": true
       }
     }
   }
