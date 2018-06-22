@@ -255,15 +255,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   addeventbutton() {
     // add some listener for buttons
 
-    /*
-    atom.commands.add("atom-workspace", {
-      "dedukti-editor:next": () => this.deduktiEditorView.nextFocus()
-    });
-    atom.commands.add("atom-workspace", {
-      "dedukti-editor:last": () => this.deduktiEditorView.lastFocus()
-    });
-
-    */
     this.deduktiEditorView.but1.addEventListener("click", () => {
       module.exports.command1();
     });

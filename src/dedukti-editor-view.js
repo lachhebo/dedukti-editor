@@ -43,9 +43,9 @@ class DeduktiEditorView {
 
     //List of Hypothesis :
     this.list_of_hypothesis = this.createCustomElement(
-      "ol",
-      ["list-group", "hypo-list"],
-      [],
+      "table",
+      ["list_of_hypothesis"],
+      [{ name: "align", value: "center" }],
       null,
       this.element
     );
@@ -298,12 +298,39 @@ class DeduktiEditorView {
     // Then, we display the hypothesis we want
     for (i = 0; i < hypothesis.length; i++) {
       let list_element = this.createCustomElement(
-        "li",
+        "tr",
         ["focus_data"],
         [],
-        hypothesis[i].hname + " : " + hypothesis[i].htype,
+        null,
         this.list_of_hypothesis
       );
+
+      let firstcol = this.createCustomElement(
+        "td",
+        ["hyponame"],
+        [],
+        hypothesis[i].hname,
+        list_element
+      );
+
+      let secondcol = this.createCustomElement(
+        "td",
+        ["hypodot"],
+        [],
+        " : ",
+        list_element
+      );
+
+      let thirdcol = this.createCustomElement(
+        "td",
+        ["hypotype"],
+        [],
+        hypothesis[i].htype,
+        list_element
+      );
+
+      //hypothesis[i].hname + " : " + hypothesis[i].htype
+
     }
   }
 
