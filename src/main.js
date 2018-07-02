@@ -39,19 +39,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     this.deduktiEditorView = new dk.default();
 
     this._disposable.add(atom.workspace.addOpener( (uri) => {
-
-      if(uri === module.exports.deduktiEditorView.getURI()){
-
-        if (module.exports.deduktiEditorView.isInitialized()){
-          module.exports.add_event_cursor(atom.workspace.getActiveTextEditor(), module.exports.editor_list);
-          return module.exports.deduktiEditorView;
-        }
-        else{
-          module.exports.deduktiEditorView.initialize();
-          module.exports.add_event_cursor(atom.workspace.getActiveTextEditor(), module.exports.editor_list);
-          module.exports.addeventbutton();
-          return module.exports.deduktiEditorView;
-        }
+      if(uri === module.exports.deduktiEditorView.getURI()){ //We want our opener to be active only for this uri
+        return module.exports.deduktiEditorView; // We open the view
       }
     }));
 
@@ -61,18 +50,15 @@ class DeduktiLanguageClient extends AutoLanguageClient {
         if (typeof editor != "undefined") {
           let scopeName = editor.getGrammar().scopeName;
           if (this.getGrammarScopes().includes(scopeName)){
-            //console.log(this.deduktiEditorView.getURI());
-          //  console.log(this.deduktiEditorView.getURI());
-            atom.workspace.open(this.deduktiEditorView.getURI());
-            this.updateView();
-
+            atom.workspace.open(this.deduktiEditorView.getURI()); // if it is not alrealdy open, We open the view
+            this.updateView(); // we just update it.
           }
           else{
-            atom.workspace.hide(this.deduktiEditorView.getURI());
+            atom.workspace.hide(this.deduktiEditorView.getURI()); //if not a .dk file, the view is closed
           }
         }
         else{
-          atom.workspace.hide(this.deduktiEditorView.getURI());
+          atom.workspace.hide(this.deduktiEditorView.getURI()); //if not a file, the view is closed
         }
       })
     );
@@ -99,7 +85,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     Object.getPrototypeOf(
       this._serverManager
     ).determineProjectPath = function determineProjectPath(textEditor) {
-      const filePath = textEditor.getPath(); //The project path is always the path of the opened file (it' a hack)
+      const filePath = textEditor.getPath(); //The project path is always the path of the opened file (it is a hack)
       if (filePath == null) {
         return null;
       }
@@ -318,15 +304,15 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     );
   }
 
-  updateView(){
+  updateView(){ // We update the view when we switch from an editor to another one.
 
-    if (this.deduktiEditorView.isInitialized()){
-      this.add_event_cursor(atom.workspace.getActiveTextEditor(), this.editor_list);
+    if (this.deduktiEditorView.isInitialized()){ // We check it is correctly initialized
+      this.add_event_cursor(atom.workspace.getActiveTextEditor(), this.editor_list); // add cursor event
     }
     else{
       this.deduktiEditorView.initialize();
-      this.add_event_cursor(atom.workspace.getActiveTextEditor(), this.editor_list);
-      this.addeventbutton();
+      this.add_event_cursor(atom.workspace.getActiveTextEditor(), this.editor_list); // add cursor event
+      this.addeventbutton(); // add events for the buttons within the view
     }
 
   }

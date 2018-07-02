@@ -138,8 +138,6 @@ class DeduktiEditorView {
 
     //Second group of buttons :
 
-    //<label class='input-label'><input class='input-toggle' type='checkbox' checked> Toggle</label>
-
     this.updatetype  = this.createCustomElement(
       "label",
       ["input-label"],
@@ -156,13 +154,11 @@ class DeduktiEditorView {
       this.updatetype
     )
 
-    //this.addeventbutton();
-
     this.initialized = true;
   }
 
 
-  isInitialized(){
+  isInitialized(){ // This function is used to check if the basic elements of the view are created
     return this.initialized;
   }
 
@@ -428,7 +424,8 @@ class DeduktiEditorView {
 
   //The aim of this function is to help the user finding which part of the goals list is related to the focus.
   markGoal(goalstring) {
-    /*    let oldgoal = this.list_of_proof.getElementsByClassName("text-info");
+    /*
+    let oldgoal = this.list_of_proof.getElementsByClassName("text-info");
     console.log(oldgoal);
     if( oldgoal = null){
       oldgoal.classList.remove("text-info");
@@ -509,7 +506,7 @@ class DeduktiEditorView {
     let min;
     let min_index;
 
-    //We compute the distanec between each FocusView and the cursor
+    //We compute the distance between each FocusView and the cursor and gather the results in an array candidate
     for (i = 0; i < this.FocusView.length; i++) {
       if (this.FocusView[i].path === path) {
         if (this.FocusView[i].range.end.line < row) {
@@ -545,7 +542,7 @@ class DeduktiEditorView {
     return null;
   }
 
-  //Exactely the same as closerNextRange
+  //Exactely the same as closerNextRange except some details
   closerNextRange(path, row, column) {
     let i;
     let candidate = [];
