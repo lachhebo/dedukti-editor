@@ -33,21 +33,50 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   activate() {
     super.activate();
 
+    this.editor_list = new Array();
+
     // create the view and variables we will need to handle the extensions.
     this.deduktiEditorView = new dk.default();
-    this.editor_list = new Array();
-    this.buttons_listened = 0;
 
-    // We want the server to be launched if a .dk file is opened on the home directory
-    Object.getPrototypeOf(
-      this._serverManager
-    ).determineProjectPath = function determineProjectPath(textEditor) {
-      const filePath = textEditor.getPath(); //The project path is always the path of the opened file (it' a hack)
-      if (filePath == null) {
-        return null;
+    this._disposable.add(atom.workspace.addOpener( (uri) => {
+
+      if(uri === module.exports.deduktiEditorView.getURI()){
+
+        if (module.exports.deduktiEditorView.isInitialized()){
+          module.exports.add_event_cursor(atom.workspace.getActiveTextEditor(), module.exports.editor_list);
+          return module.exports.deduktiEditorView;
+        }
+        else{
+          module.exports.deduktiEditorView.initialize();
+          module.exports.add_event_cursor(atom.workspace.getActiveTextEditor(), module.exports.editor_list);
+          module.exports.addeventbutton();
+          return module.exports.deduktiEditorView;
+        }
       }
-      return filePath;
-    }.bind(this._serverManager);
+    }));
+
+
+    this._disposable.add(
+      atom.workspace.observeActiveTextEditor(editor => {
+        if (typeof editor != "undefined") {
+          let scopeName = editor.getGrammar().scopeName;
+          if (this.getGrammarScopes().includes(scopeName)){
+            //console.log(this.deduktiEditorView.getURI());
+          //  console.log(this.deduktiEditorView.getURI());
+            atom.workspace.open(this.deduktiEditorView.getURI());
+            this.updateView();
+
+          }
+          else{
+            atom.workspace.hide(this.deduktiEditorView.getURI());
+          }
+        }
+        else{
+          atom.workspace.hide(this.deduktiEditorView.getURI());
+        }
+      })
+    );
+
 
     // add some keybindings:
     atom.commands.add("atom-workspace", {
@@ -66,33 +95,17 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       "dedukti-editor:last": () => this.deduktiEditorView.lastFocus()
     });
 
-    //this.deduktiEditorView.initialise_exemple();
+    // We want the server to be launched if a .dk file is opened on the home directory
+    Object.getPrototypeOf(
+      this._serverManager
+    ).determineProjectPath = function determineProjectPath(textEditor) {
+      const filePath = textEditor.getPath(); //The project path is always the path of the opened file (it' a hack)
+      if (filePath == null) {
+        return null;
+      }
+      return filePath;
+    }.bind(this._serverManager);
 
-    // manage the view opening and closing, call listener for buttons
-    this._disposable.add(
-      atom.workspace.observeActiveTextEditor(editor => {
-        //for each active editor, check the pane is actually a file (not something like a setting view)
-        if (typeof editor != "undefined") {
-          let scopeName = editor.getGrammar().scopeName;
-          //get the editor file extension and check it's include with the dedukti grammar
-          if (this.getGrammarScopes().includes(scopeName)) {
-            //open the view and add new listener for cursor and buttons if necessary
-            atom.workspace.open(this.deduktiEditorView);
-            this.add_event_cursor(editor, this.editor_list);
-            if (this.buttons_listened === 0) {
-              this.addeventbutton();
-              this.buttons_listened = 1; //we just want one listener
-            }
-          } else {
-            //hide the view
-            atom.workspace.hide(this.deduktiEditorView);
-          }
-        } else {
-          //hide the view
-          atom.workspace.hide(this.deduktiEditorView);
-        }
-      })
-    );
   }
 
   startServer(projectPath) {
@@ -101,9 +114,39 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return super.startServer(homedir);
   }
 
+  addeventbutton() {
+    // add some listener for buttons
+
+    this.deduktiEditorView.but1.addEventListener("click", () => {
+      module.exports.command1();
+    });
+
+    this.deduktiEditorView.but2.addEventListener("click", () => {
+      this.deduktiEditorView.nextFocus();
+    });
+
+    this.deduktiEditorView.but3.addEventListener("click", () => {
+      this.deduktiEditorView.lastFocus();
+    });
+    /*
+    this.deduktiEditorView.input.addEventListener("click", () => {
+    if(atom.config.get("dedukti-editor.DeduktiSettings.automaticUpdate")){
+    atom.config.set("dedukti-editor.DeduktiSettings.automaticUpdate", false);
+    }
+    else{
+    atom.config.set("dedukti-editor.DeduktiSettings.automaticUpdate", true);
+    }
+    });
+    */
+  }
+
   preInitialization(connection) {
+
     // we hack onPublishDiagnostics message before it is received by atom and handle positive message
     connection.onPublishDiagnostics = function(callback) {
+      if (!module.exports.deduktiEditorView.isInitialized()){
+        module.exports.deduktiEditorView.initialize();
+      }
       let mycallback = function(params) {
         params.diagnostics = this.deduktiEditorView.updateDiagnostics(
           params.diagnostics,
@@ -119,12 +162,13 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       );
     };
 
+
     /*
-    connection.didChangeTextDocument = function(params) {
+      connection.didChangeTextDocument = function(params) {
       if(atom.config.get("dedukti-editor.DeduktiSettings.automaticUpdate")){
-        connection._sendNotification('textDocument/didChange', params);
-      }
+      connection._sendNotification('textDocument/didChange', params);
     }
+      }
     */
     this.connect_server = connection;
 
@@ -132,13 +176,13 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     A new command we may add to handle the view.
     connection.onCustom("ProofAssistant/ActiveGoals",
     (e) => {
-      this.updateView(e);
+    this.updateView(e);
     });
     */
   }
 
-  startServerProcess(projectPath) {
-    //await new Promise(resolve => atom.whenShellEnvironmentLoaded(resolve));
+  async startServerProcess(projectPath) {
+    await new Promise(resolve => atom.whenShellEnvironmentLoaded(resolve));
     // we get the command and args from the setting panel
     var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
@@ -146,9 +190,9 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     /* // Debug for developper (isma)
     var command_test = "./lp-lsp_test";
     const childProcess = child_process.spawn(command_test, args,{
-      cwd: "/home/isma/"
+    cwd: "/home/isma/"
     });
-     // */
+    // */
 
     // a new process is created and send back
     const childProcess = child_process.spawn(command, args);
@@ -159,11 +203,11 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     //TODO: Use the `which` module to provide a better error in the case of a missing server.
     atom.notifications.addError(
       "Error starting the language server: " +
-        atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath"),
+      atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath"),
       {
         dismissable: true,
         description:
-          "Please make sure you've followed the Installation section in the README and that the server is functional"
+        "Please make sure you've followed the Installation section in the README and that the server is functional"
       }
     );
   }
@@ -252,32 +296,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     }
   }
 
-  addeventbutton() {
-    // add some listener for buttons
-
-    this.deduktiEditorView.but1.addEventListener("click", () => {
-      module.exports.command1();
-    });
-
-    this.deduktiEditorView.but2.addEventListener("click", () => {
-       this.deduktiEditorView.nextFocus();
-    });
-
-    this.deduktiEditorView.but3.addEventListener("click", () => {
-      this.deduktiEditorView.lastFocus();
-    });
-    /*
-    this.deduktiEditorView.input.addEventListener("click", () => {
-      if(atom.config.get("dedukti-editor.DeduktiSettings.automaticUpdate")){
-        atom.config.set("dedukti-editor.DeduktiSettings.automaticUpdate", false);
-      }
-      else{
-        atom.config.set("dedukti-editor.DeduktiSettings.automaticUpdate", true);
-      }
-    });
-    */
-  }
-
   //In case the a key binding or a button is activated, we send message to the server
   command1() {
     this.connect_server.sendCustomNotification(
@@ -298,6 +316,19 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       "ProofAssistant/CapturedKey3",
       []
     );
+  }
+
+  updateView(){
+
+    if (this.deduktiEditorView.isInitialized()){
+      this.add_event_cursor(atom.workspace.getActiveTextEditor(), this.editor_list);
+    }
+    else{
+      this.deduktiEditorView.initialize();
+      this.add_event_cursor(atom.workspace.getActiveTextEditor(), this.editor_list);
+      this.addeventbutton();
+    }
+
   }
 
 }
