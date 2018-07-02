@@ -33,8 +33,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   activate() {
     super.activate();
 
-    this.editor_list = new Array();
-
     // create the view and variables we will need to handle the extensions.
     this.deduktiEditorView = new dk.default();
 
@@ -218,6 +216,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
     if (editor === "") {
       //the editor concerned by the diagnostics is not open.
+      return [];
     } else {
       //we destroy previous color markers on this editor
       let marker_color = editor.findMarkers({ persistent: false });
@@ -226,6 +225,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       }
     }
     // Then we put new color markers on this editor
+
     for (i = 0; i < params.diagnostics.length; i++) {
       if (params.diagnostics[i].message === "OK") {
         //  Hence Green
@@ -269,17 +269,17 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return mydiagnostics;
   }
 
-  add_event_cursor(editor, editor_list) {
+  add_event_cursor(editor) {
     // add some listener for cursor in an editor
-    // we ckeck the editor is currently not listened
-    if (!editor_list.includes(editor)) {
-      this._disposable.add(
-        editor.onDidChangeSelectionRange(selection => {
-          module.exports.deduktiEditorView.updateView(selection, editor);
-        })
-      );
-      editor_list.push(editor);
+
+    if(typeof this.currentcursor != "undefined"){
+      this.currentcursor.dispose(); //We doesn't need to listen the last file cursor
     }
+
+    this.currentcursor = editor.onDidChangeSelectionRange(selection => {
+      this.deduktiEditorView.updateView(selection, editor);
+    });
+
   }
 
   //In case the a key binding or a button is activated, we send message to the server
@@ -307,11 +307,11 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   updateView(){ // We update the view when we switch from an editor to another one.
 
     if (this.deduktiEditorView.isInitialized()){ // We check it is correctly initialized
-      this.add_event_cursor(atom.workspace.getActiveTextEditor(), this.editor_list); // add cursor event
+      this.add_event_cursor(atom.workspace.getActiveTextEditor()); // add cursor event
     }
     else{
       this.deduktiEditorView.initialize();
-      this.add_event_cursor(atom.workspace.getActiveTextEditor(), this.editor_list); // add cursor event
+      this.add_event_cursor(atom.workspace.getActiveTextEditor()); // add cursor event
       this.addeventbutton(); // add events for the buttons within the view
     }
 
