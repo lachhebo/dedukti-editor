@@ -140,8 +140,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       if (!module.exports.deduktiEditorView.isInitialized()){
         module.exports.deduktiEditorView.initialize();
       }
-      //console.log(module.exports._serverManager.getServer(atom.workspace.getActiveTextEditor()));
-      //console.log("FFFFFFFFFFFFF",server.capabilities);
       let mycallback = function(params) {
         params.diagnostics = this.deduktiEditorView.updateDiagnostics(
           params.diagnostics,
@@ -180,7 +178,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   colorizebuffer(params) {
     // every variable we need.
-    console.log(module.exports._serverManager.getServer(atom.workspace.getActiveTextEditor()));
     let path = Convert.uriToPath(params.uri);
     let i = 0;
     let z = 0;
