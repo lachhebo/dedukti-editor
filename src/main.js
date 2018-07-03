@@ -9,6 +9,8 @@ const {
   Convert
 } = require("atom-languageclient");
 
+const actionProviderComposer = require('./provider');
+
 class DeduktiLanguageClient extends AutoLanguageClient {
   constructor() {
     // at the opening of Atom
@@ -30,39 +32,71 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     return "lp-lsp";
   }
 
+  startServerProcess(projectPath) {
+     //  await new Promise(resolve => atom.whenShellEnvironmentLoaded(resolve));
+    // we get the command and args from the setting panel
+
+    var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
+    var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
+
+    /* // Debug for developper (isma)
+    var command_test = "./lp-lsp_test";
+    const childProcess = child_process.spawn(command_test, args,{
+    cwd: "/home/isma/"
+    });
+    // */
+
+    // a new process is created and send back
+    const childProcess = child_process.spawn(command, args);
+    return childProcess;
+  }
+
+
+
   activate() {
     super.activate();
 
     // create the view and variables we will need to handle the extensions.
     this.deduktiEditorView = new dk.default();
 
+    this.manageView();
+    this.addKeyBindings();
+
+
+  }
+
+
+  manageView(){
+
     this._disposable.add(atom.workspace.addOpener( (uri) => {
       if(uri === module.exports.deduktiEditorView.getURI()){ //We want our opener to be active only for this uri
-        return module.exports.deduktiEditorView; // We open the view
+        return module.exports.deduktiEditorView; // We return the view
       }
     }));
 
-
     this._disposable.add(
       atom.workspace.observeActiveTextEditor(editor => {
-        if (typeof editor != "undefined") {
+        //
+        if (typeof editor != "undefined"){
           let scopeName = editor.getGrammar().scopeName;
-          if (this.getGrammarScopes().includes(scopeName)){
+          if(this.getGrammarScopes().includes(scopeName)){
             atom.workspace.open(this.deduktiEditorView.getURI()); // if it is not alrealdy open, We open the view
-            this.updateView(); // we just update it.
+            this.adaptViewToEditor(); // we just update it.
           }
           else{
             atom.workspace.hide(this.deduktiEditorView.getURI()); //if not a .dk file, the view is closed
           }
         }
         else{
-          atom.workspace.hide(this.deduktiEditorView.getURI()); //if not a file, the view is closed
+          atom.workspace.hide(this.deduktiEditorView.getURI()); //if not a .dk file, the view is closed
         }
       })
     );
 
+  }
 
-    // add some keybindings:
+  addKeyBindings(){ // add some keybindings
+
     atom.commands.add("atom-workspace", {
       "dedukti-editor:command1": () => this.command1()
     });
@@ -79,24 +113,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       "dedukti-editor:last": () => this.deduktiEditorView.lastFocus()
     });
 
-    // We want the server to be launched if a .dk file is opened on the home directory
-    Object.getPrototypeOf(
-      this._serverManager
-    ).determineProjectPath = function determineProjectPath(textEditor) {
-      const filePath = textEditor.getPath(); //The project path is always the path of the opened file (it is a hack)
-      if (filePath == null) {
-        return null;
-      }
-      return filePath;
-    }.bind(this._serverManager);
-
   }
 
-  startServer(projectPath) {
-    // we want the server to listen for every .dk file on home directory
-    const homedir = require("os").homedir();
-    return super.startServer(homedir);
-  }
 
   addeventbutton() {
     // add some listener for buttons
@@ -112,16 +130,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     this.deduktiEditorView.but3.addEventListener("click", () => {
       this.deduktiEditorView.lastFocus();
     });
-    /*
-    this.deduktiEditorView.input.addEventListener("click", () => {
-    if(atom.config.get("dedukti-editor.DeduktiSettings.automaticUpdate")){
-    atom.config.set("dedukti-editor.DeduktiSettings.automaticUpdate", false);
-    }
-    else{
-    atom.config.set("dedukti-editor.DeduktiSettings.automaticUpdate", true);
-    }
-    });
-    */
+    //TODO ACTIVATE AUTOMATIC UPDATE
   }
 
   preInitialization(connection) {
@@ -131,6 +140,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       if (!module.exports.deduktiEditorView.isInitialized()){
         module.exports.deduktiEditorView.initialize();
       }
+      //console.log(module.exports._serverManager.getServer(atom.workspace.getActiveTextEditor()));
+      //console.log("FFFFFFFFFFFFF",server.capabilities);
       let mycallback = function(params) {
         params.diagnostics = this.deduktiEditorView.updateDiagnostics(
           params.diagnostics,
@@ -147,40 +158,11 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     };
 
 
-    /*
-      connection.didChangeTextDocument = function(params) {
-      if(atom.config.get("dedukti-editor.DeduktiSettings.automaticUpdate")){
-      connection._sendNotification('textDocument/didChange', params);
-    }
-      }
-    */
+    //TODO WORKAROUND AGAINST ISSUE NUMERO 1
+
     this.connect_server = connection;
 
-    /*
-    A new command we may add to handle the view.
-    connection.onCustom("ProofAssistant/ActiveGoals",
-    (e) => {
-    this.updateView(e);
-    });
-    */
-  }
 
-  async startServerProcess(projectPath) {
-    await new Promise(resolve => atom.whenShellEnvironmentLoaded(resolve));
-    // we get the command and args from the setting panel
-    var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
-    var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
-
-    /* // Debug for developper (isma)
-    var command_test = "./lp-lsp_test";
-    const childProcess = child_process.spawn(command_test, args,{
-    cwd: "/home/isma/"
-    });
-    // */
-
-    // a new process is created and send back
-    const childProcess = child_process.spawn(command, args);
-    return childProcess;
   }
 
   handleSpawnFailure(err) {
@@ -198,6 +180,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   colorizebuffer(params) {
     // every variable we need.
+    console.log(module.exports._serverManager.getServer(atom.workspace.getActiveTextEditor()));
     let path = Convert.uriToPath(params.uri);
     let i = 0;
     let z = 0;
@@ -289,14 +272,12 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       []
     );
   }
-
   command2() {
     this.connect_server.sendCustomNotification(
       "ProofAssistant/CapturedKey2",
       []
     );
   }
-
   command3() {
     this.connect_server.sendCustomNotification(
       "ProofAssistant/CapturedKey3",
@@ -304,7 +285,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     );
   }
 
-  updateView(){ // We update the view when we switch from an editor to another one.
+  adaptViewToEditor(){ // We update the view when we switch from an editor to another one.
 
     if (this.deduktiEditorView.isInitialized()){ // We check it is correctly initialized
       this.add_event_cursor(atom.workspace.getActiveTextEditor()); // add cursor event
@@ -315,6 +296,40 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       this.addeventbutton(); // add events for the buttons within the view
     }
 
+  }
+
+
+
+  provideCodeActions() {
+    return actionProviderComposer(
+      this,
+      this.provideType,
+      this.provideValue
+    )
+  }
+
+  provideType(editor, range, diagnostic, languageClient) {
+    return {
+      getTitle() { return Promise.resolve("provide Type") },
+      dispose() {},
+      apply() {
+        return Promise.resolve(
+            console.log("test 1")
+          )
+      }
+    }
+  }
+
+  provideValue(editor, range, diagnostic, languageClient) {
+    return {
+      getTitle() { return Promise.resolve("provide Value") },
+      dispose() {},
+      apply() {
+        return Promise.resolve(
+            console.log("test 2")
+          )
+      }
+    }
   }
 
 }

@@ -9,25 +9,28 @@
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
-    "atom-languageclient": "^0.9.5",
-    "child_process": "^1.0.2"
+    "atom-languageclient": "^0.9.5"
   },
   "consumedServices": {
-    "atom-ide-busy-signal": {
-      "versions": {
-        "0.1.0": "consumeBusySignal"
-      }
-    },
-    "outline-view": {
-      "versions": {
-        "0.1.0": "provideOutlines"
-      }
-    },
     "linter-indie": {
       "versions": {
         "2.0.0": "consumeLinterV2"
       }
     }
   },
-  "providedServices": {}
+  "enhancedScopes": [
+    "source.dedukti"
+  ],
+  "providedServices": {
+    "code-actions": {
+	     "versions": {
+	        "0.1.0": "provideCodeActions"
+	      }
+    },
+    "outline-view": {
+      "versions": {
+        "0.1.0": "provideOutlines"
+      }
+    }
+  }
 }
