@@ -29,7 +29,7 @@ patterns: [ # An array of individual pattern declarations.
     'name': 'entity.name.tag.dedukti'
   }
   {
-      'match': '(-->|->)'
+      'match': '(-->|->|=>)'
       'name': 'constant.numeric.dedukti'
   }
   {

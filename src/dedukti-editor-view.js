@@ -1,4 +1,5 @@
 class DeduktiEditorView {
+  
   constructor() {
     // DATA :
     this.FocusView = [];
@@ -23,7 +24,7 @@ class DeduktiEditorView {
   getAllowedLocations() {
     // The locations into which the item can be moved.
     return ['right'];
-}
+  }
 
   initialize(){
 
@@ -113,18 +114,19 @@ class DeduktiEditorView {
 
     // Buttons :
 
-    this.but2 = this.createCustomElement(
-      "button",
-      ["btn"],
-      [{ name: "id", value: "second" }],
-      "Next Step",
-      this.div_button_first
-    );
     this.but3 = this.createCustomElement(
       "button",
       ["btn"],
       [{ name: "id", value: "third" }],
       "Previous Step",
+      this.div_button_first
+    );
+
+    this.but2 = this.createCustomElement(
+      "button",
+      ["btn"],
+      [{ name: "id", value: "second" }],
+      "Next Step",
       this.div_button_first
     );
 
@@ -157,11 +159,9 @@ class DeduktiEditorView {
     this.initialized = true;
   }
 
-
   isInitialized(){ // This function is used to check if the basic elements of the view are created
     return this.initialized;
   }
-
 
   /* This function help us creating the element we need on our web page */
   createCustomElement(type, classlist, attributes, textcontent, parentnode) {
@@ -201,7 +201,6 @@ class DeduktiEditorView {
     // Title of the Information Panel
     return "atom://dedukti-editor-info";
   }
-
 
   // An example to show how the view is looking.
   initialise_exemple() {
@@ -423,7 +422,7 @@ class DeduktiEditorView {
   /* A couple of function to enhance the user experience */
 
   //The aim of this function is to help the user finding which part of the goals list is related to the focus.
-  markGoal(goalstring) {
+  markGoal(goalstring) { //TODO : MAKE This work
     /*
     let oldgoal = this.list_of_proof.getElementsByClassName("text-info");
     console.log(oldgoal);
@@ -585,90 +584,6 @@ class DeduktiEditorView {
     return null;
   }
 
-  ////////////// A LIST OF OLD FUNCTIONS ////////////////////////
-  /*
-  // A function to update the the goals list when it's needed
-  updateSubProof() {
-    //This function was created to handle a tree view and need to be rewritten
-    let j;
-    var new_list_of_proof = document.createElement("ol");
-
-    for (j = 0; j < this.data_proof_array; j++) {
-      var souspreuvre = document.createElement("li");
-      souspreuvre.classList.add("list-nested-item");
-      souspreuvre.setAttribute("id", this.data_proof_array[i].id);
-
-      // On crée le sous arbre
-      var sousarbre = document.createElement("ul");
-      sousarbre.classList.add("entries", "list-tree");
-
-      var div = document.createElement("div");
-      div.classList.add("header", "list-item");
-
-      var span = document.createElement("span");
-      span.innerText = this.data_proof_array[i].name;
-      div.appendChild(span);
-
-      // On ajoute les elements à la preuve
-      souspreuvre.appendChild(div);
-      souspreuvre.appendChild(sousarbre);
-
-      if (this.data_proof_array[i].parent_id === 0) {
-        new_list_of_proof.appendChild(souspreuvre);
-        span.classList.add("icon", "icon-key");
-      } else {
-        span.classList.add("icon", "icon-link");
-        let parent_tree = document.getElementById(
-          this.data_proof_array[i].parent_id
-        );
-        let children = parent_tree.childNodes;
-        let list_tree = children.item(1);
-        list_tree.appendChild(souspreuvre);
-      }
-    }
-
-    this.list_of_proof = this.element.replaceChild(
-      new_list_of_proof,
-      this.list_of_proof
-    );
-  }
-
-  // A function to update the the hypothesis list when it's needed
-  updateHypothesis(hypothesis_array) {
-    //This function was created to handle a tree view and need to be rewritten
-    let new_list_of_hypothesis = document.createElement("ol");
-
-    let i;
-    for (i = 0; i < hypothesis_array.length; i++) {
-      var hypothesis = document.createElement("li");
-      hypothesis.classList.add("list-item");
-
-      var span = document.createElement("span");
-      span.classList.add("icon", "icon-bookmark");
-      span.innerText = hypothesis_array[i];
-      hypothesis.appendChild(span);
-      new_list_of_hypothesis.append(hypothesis);
-    }
-
-    this.list_of_hypothesis = this.element.replaceChild(
-      new_list_of_hypothesis,
-      this.list_of_hypothesis
-    );
-  }
-
-  // Not usefull yet, may be useless
-  cursor_tree_update(id) {
-    //This function was created to handle a tree view and need to be rewritten
-    let to_colorize = document.getElementById(id);
-
-    let children = to_colorize.childNodes;
-    let div = children.item(0);
-    let span = div.childNodes.item(0);
-
-    span.classList.remove("icon-key", "icon-link");
-    span.classList.add("icon-eye-watch");
-  }
-*/
 }
 
 exports.default = DeduktiEditorView;
