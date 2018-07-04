@@ -65,7 +65,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   }
 
-
   manageView(){
 
     this._disposable.add(atom.workspace.addOpener( (uri) => {
@@ -114,7 +113,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     });
 
   }
-
 
   addeventbutton() {
     // add some listener for buttons
@@ -293,40 +291,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       this.addeventbutton(); // add events for the buttons within the view
     }
 
-  }
-
-
-
-  provideCodeActions() {
-    return actionProviderComposer(
-      this,
-      this.provideType,
-      this.provideValue
-    )
-  }
-
-  provideType(editor, range, diagnostic, languageClient) {
-    return {
-      getTitle() { return Promise.resolve("provide Type") },
-      dispose() {},
-      apply() {
-        return Promise.resolve(
-            console.log("test 1")
-          )
-      }
-    }
-  }
-
-  provideValue(editor, range, diagnostic, languageClient) {
-    return {
-      getTitle() { return Promise.resolve("provide Value") },
-      dispose() {},
-      apply() {
-        return Promise.resolve(
-            console.log("test 2")
-          )
-      }
-    }
   }
 
 }
