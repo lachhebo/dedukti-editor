@@ -1,5 +1,5 @@
 class DeduktiEditorView {
-  
+
   constructor() {
     // DATA :
     this.FocusView = [];
@@ -48,7 +48,7 @@ class DeduktiEditorView {
       this.element
     );
 
-    //The tree
+    //The List of unresolved goals
     this.list_of_proof = this.createCustomElement(
       "table",
       ["goalstable"],
@@ -155,7 +155,7 @@ class DeduktiEditorView {
       null,
       this.updatetype
     )
-
+    // We consider that the view is now initialized
     this.initialized = true;
   }
 
@@ -165,6 +165,8 @@ class DeduktiEditorView {
 
   /* This function help us creating the element we need on our web page */
   createCustomElement(type, classlist, attributes, textcontent, parentnode) {
+
+    //It is just of wrapper around the DOM API to clean the code.
     let element = document.createElement(type);
     let i;
 
@@ -229,28 +231,28 @@ class DeduktiEditorView {
 
   /* We get the data from diagnostics for the moment */
   updateDiagnostics(data, text_editor_path) {
-    this.FocusView = [];
-    //console.log(data);
+    this.FocusView = []; // We forget every diagnostics sent before by the server.
     let i;
-    //console.log("initialisation");
+
     for (i = 0; i < data.length; i++) {
       if (data[i].goal_fg != null) {
         // We get the hypothesis and the goal
         let curentobj = data[i].goal_fg.type;
         let goalhypothesis = data[i].goal_fg.hyps;
 
-        this.FocusView.push({
-          path: text_editor_path,
-          range: data[i].range,
-          goal: curentobj,
-          hypothesis: goalhypothesis
+        this.FocusView.push({ // we register within our memory
+          path: text_editor_path,     // the file path
+          range: data[i].range,       //the range to attribuate to this view
+          goal: curentobj,            //the current goal
+          hypothesis: goalhypothesis  //the list of hypothesis
         });
       }
     }
 
-    this.initialise_exemple();
+    //TODO Remove the initialise_exemple and replace it with an handler for goal view.
+    this.initialise_exemple(); //For the moment we initialise the goal view here.
 
-    return data;
+    //return data;
   }
 
   // A function to update the focus part of the view when it's needed
@@ -258,6 +260,7 @@ class DeduktiEditorView {
     let path = editor.getPath();
     let i = 0;
     // We check the selection is actually a point
+    //We use selection because for the moment we think it' better to not update the view when the user select a large part of text
     if (
       selection.newScreenRange.start.row == selection.newScreenRange.end.row &&
       selection.newScreenRange.start.column ==
@@ -286,13 +289,13 @@ class DeduktiEditorView {
           this.setCurrentObjectif(this.FocusView[i].goal);
           this.setHypothesis(this.FocusView[i].hypothesis);
           //this.markGoal(this.FocusView[i].goal); //Ultimately, we want to provide some visual information to the user.
-          none_objective = 1;
+          none_objective = 1; // We can now consider that we found a data within our tab that correspond to the situation
         }
       }
       if (none_objective === 0) {
         //If no FocusView is associated with the cursor position
-        this.setCurrentObjectif("");
-        this.cleanHypothesis();
+        this.setCurrentObjectif(""); // The currentObjective is set to null.
+        this.cleanHypothesis(); //We clean every hypothesis.
       }
     }
   }
@@ -309,42 +312,40 @@ class DeduktiEditorView {
     let i = 0;
     this.cleanHypothesis(); // We begin by erased what was displayed before on the hypothesis list
 
-    //console.log(hypothesis);
     // Then, we display the hypothesis we want
     for (i = 0; i < hypothesis.length; i++) {
-      let list_element = this.createCustomElement(
-        "tr",
-        ["focus_data"],
-        [],
-        null,
-        this.list_of_hypothesis
+      let list_element = this.createCustomElement( // we begin by creating a tab
+        "tr",                   //type
+        ["focus_data"],         //classList
+        [],                     //attributes
+        null,                   // textContent
+        this.list_of_hypothesis // parent node
       );
 
-      let firstcol = this.createCustomElement(
+      let firstcol = this.createCustomElement(     // then the first column
         "td",
         ["hyponame"],
         [],
-        hypothesis[i].hname,
+        hypothesis[i].hname, // we display in it the name
         list_element
       );
 
-      let secondcol = this.createCustomElement(
+      let secondcol = this.createCustomElement(   // then the second column
         "td",
         ["hypodot"],
         [],
-        " : ",
+        " : ", // we display in it a small separator
         list_element
       );
 
-      let thirdcol = this.createCustomElement(
+      let thirdcol = this.createCustomElement(  // then the second column
         "td",
         ["hypotype"],
         [],
-        hypothesis[i].htype,
+        hypothesis[i].htype, // we display in it the type
         list_element
       );
 
-      //hypothesis[i].hname + " : " + hypothesis[i].htype
 
     }
   }
@@ -356,21 +357,22 @@ class DeduktiEditorView {
 
     for (i = 0; i < goallist.length; i++) {
       let line = this.createCustomElement(
-        "tr",
-        ["goalline"],
-        [],
-        null,
-        this.list_of_proof
+        "tr",               //type
+        ["goalline"],       //classList
+        [],                 //attributes
+        null,               //textcontent
+        this.list_of_proof  //parent node
       );
 
       //We create the element we need to display a list of goals
       let firstcol = this.createCustomElement(
-        "td",
-        ["goalcolumn"],
-        [],
-        goallist[i].goal,
-        line
+        "td",               //type
+        ["goalcolumn"],     //classList
+        [],                 //attributes
+        goallist[i].goal,   //textcontent
+        line                //parent node
       );
+
       let secondcol = this.createCustomElement(
         "td",
         ["goalcolumn"],
@@ -378,7 +380,8 @@ class DeduktiEditorView {
         null,
         line
       );
-      let btn = this.createCustomElement(
+
+      let btn = this.createCustomElement( // within the second goal, we add a button
         "button",
         ["btn", "btn-xs", "btn-info"],
         [],
@@ -455,7 +458,7 @@ class DeduktiEditorView {
     let cursor = editor.getCursorScreenPosition();
     let path = editor.getPath();
     //This function return the closest next focus view to our current cursor.
-    let point = this.closerNextRange(path, cursor.row, cursor.column);
+    let point = this.closestNextRange(path, cursor.row, cursor.column);
 
     if (point != null) {
       //We check a next focus view actually exists.
@@ -468,7 +471,7 @@ class DeduktiEditorView {
     let editor = atom.workspace.getActiveTextEditor();
     let cursor = editor.getCursorScreenPosition();
     let path = editor.getPath();
-    let point = this.closerLastRange(path, cursor.row, cursor.column);
+    let point = this.closestLastRange(path, cursor.row, cursor.column);
 
     if (point != null) {
       editor.setCursorScreenPosition([point.line, point.character]);
@@ -477,7 +480,7 @@ class DeduktiEditorView {
 
   /* A couple of functions to deal with ranges */
   rangewithin(dvpath, dvRS, dvRE, dvCS, dvCE, apath, aR, aC) {
-    /*This function  return a boolean, his value value is true when the cursor symbolised by aRow and aColumn is within the range
+    /*This function  return a boolean, his value is true when the cursor symbolised by aRow (aR) and aColumn (aC) is within the range
     defined by the dvRowStart, dvRowEnd, dvColumnStart and dvColumnEnd. (and of course on the same file)
     */
     if (dvpath != apath) {
@@ -499,16 +502,16 @@ class DeduktiEditorView {
     return true;
   }
 
-  closerLastRange(path, row, column) {
+  closestLastRange(path, row, column) {
     let i;
     let candidate = [];
     let min;
     let min_index;
 
-    //We compute the distance between each FocusView and the cursor and gather the results in an array candidate
+    //We compute the distance between each FocusView and the cursor, then we gather the results in an array called candidate
     for (i = 0; i < this.FocusView.length; i++) {
       if (this.FocusView[i].path === path) {
-        if (this.FocusView[i].range.end.line < row) {
+        if (this.FocusView[i].range.end.line < row) { // we check is is efficient to compute distance between the two
           let travel = row - this.FocusView[i].range.end.line;
           candidate.push({
             distance: travel,
@@ -541,8 +544,8 @@ class DeduktiEditorView {
     return null;
   }
 
-  //Exactely the same as closerNextRange except some details
-  closerNextRange(path, row, column) {
+  //Exactely the same as closestLastRange except some details
+  closestNextRange(path, row, column) {
     let i;
     let candidate = [];
     let min;

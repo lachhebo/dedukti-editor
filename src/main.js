@@ -1,5 +1,13 @@
 "use strict";
 
+/* Documetation Links
+
+https://developer.mozilla.org/en-US/docs/Web/javascript
+https://atom.io/docs/api/v1.28.0/AtomEnvironment
+https://github.com/atom/atom-languageclient //Here there is also many examples of atom language extensions
+
+*/
+
 const dk = require("./dedukti-editor-view");
 const Utils  = require("./utils").default;
 const child_process = require("child_process");
@@ -11,25 +19,26 @@ const {
 
 
 class DeduktiLanguageClient extends AutoLanguageClient {
+
   constructor() {
     // at the opening of Atom
     super();
 
     atom.config.set("core.debugLSP", true); // Debug by default;
     this.config = require("./config/settings.json"); // To modify the configuration, check the setting view
-    console.log(this.config);
   }
 
   activate() {
     super.activate();
     // create the view and variables we will need to handle the extensions.
     this.deduktiEditorView = new dk.default();
-
+    //Initiaise the tools we will need to add interaction within the editor
     Utils.initialize(this);
+
   }
 
   getGrammarScopes() {
-    return ["source.dedukti"];
+    return ["source.dedukti"]; //the grammar we defined in dedukti.cson
   }
 
   getLanguageName() {
@@ -41,7 +50,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   }
 
   startServerProcess(projectPath) {
-    // await new Promise(resolve => atom.whenShellEnvironmentLoaded(resolve));
 
     // we get the command and args from the setting panel
     var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
@@ -76,41 +84,28 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
     // we hack onPublishDiagnostics message before it is received by atom and handle positive message
     connection.onPublishDiagnostics = function(callback) {
-      if (!module.exports.deduktiEditorView.isInitialized()){
-        module.exports.deduktiEditorView.initialize();
+      if (!module.exports.deduktiEditorView.isInitialized()){ // We check the view has been initialised
+        module.exports.deduktiEditorView.initialize();  // If not, we initialize it
       }
       let mycallback = function(params) {
-        params.diagnostics = this.deduktiEditorView.updateDiagnostics(
+        // we add our function before the diagnostics are processed by atomlanguageclient
+        this.deduktiEditorView.updateDiagnostics(
           params.diagnostics,
           Convert.uriToPath(params.uri)
-        );
-        let mydiagnostics = Utils.colorBuffer(params);
-        params.diagnostics = mydiagnostics;
-        callback(params);
+        ); // the update diagnostics function will capture the goals embedded within the diagnostics
+        params.diagnostics = Utils.colorBuffer(params); // the colorBuffer function will tcolor in red and green the editor and remove positive diagnostics
+        callback(params); // Eventually, the remaining diagnostics are processed by atomlanguageclient
       };
       connection._onNotification(
         { method: "textDocument/publishDiagnostics" },
-        mycallback.bind(module.exports)
+        mycallback.bind(module.exports) // mycallback need to be execute within this file context  //https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Function/bind
       );
     };
 
-
     //TODO WORKAROUND AGAINST ISSUE NUMERO 1
 
-    this.connect_server = connection;
-
   }
 
-  //In case the a key binding or a button is activated, we send message to the server
-  command() {
-    this.connect_server.sendCustomNotification(
-      "ProofAssistant/CapturedKey1",
-      []
-    );
-  }
-
-
-  //uni:blablakoko okok
 }
 
 module.exports = new DeduktiLanguageClient();

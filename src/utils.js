@@ -143,48 +143,63 @@ class Utils {
   static add_editor_event(editor) { // NOT HERE OK
     // add some listener for cursor in an editor
 
+    this.add_cursor_event(editor); // the cursor event which update the view
+    this.add_parser_event(editor); // the parser event which update the buffer with unicode symbols.
+
+  }
+
+  static add_cursor_event(editor){
+
     if(typeof this.currentcursor != "undefined"){ //We check if it is the first time a file is opened
       this.currentcursor.dispose(); //We doesn't need to listen the last file cursor
     }
-    if(typeof this.currentcursor != "undefined"){ //We check if it is the first time a file is opened
+
+    //When the user move the cursor, we update the view
+    this.currentcursor = editor.onDidChangeSelectionRange(selection => {
+      this.view.updateView(selection, editor);
+    });
+
+  }
+
+  static add_parser_event(editor){
+    console.log("okay");
+    if(typeof this.currentEditorUnicode != "undefined"){ //We check if it is the first time a file is opened
       this.currentEditorUnicode.dispose(); //We doesn't need to listen the last file cursor
     }
 
-    this.currentcursor = editor.onDidChangeSelectionRange(selection => {
-      this.view.updateView(selection, editor); //When the user move the cursor, we update the view
-    });
-
-    let i =0; // In case it is the first time the file is opened, we check the all content of the file.
-    for(i=0;i<this.parser.length;i++){
-      editor.scan(
-        new RegExp(this.parser[i].regex,'g'),
-        (iterator) => {
-          iterator.replace(this.parser[i].unicode);
-        }
-      );
-    }
-
+    //When the change the text, we check the new changes with our parser.
     this.currentEditorUnicode = editor.onDidStopChanging( (data) => {
       let i = 0;
       let j = 0;
-      for(j=0;j<data.changes.length;j++){
-        for(i=0;i<this.parser.length;i++){
+      for(j=0;j<data.changes.length;j++){ // For each changes
+        for(i=0;i<this.parser.length;i++){ // For each parser traduction
           editor.scanInBufferRange(
-            new RegExp(this.parser[i].regex),
+            new RegExp(this.parser[i].regex), // get the regex associate with the traduction parser
             [
               [data.changes[j].newRange.start.row, 0],
               [data.changes[j].newRange.end.row +1, data.changes[0].newRange.end.colum]
-            ],
+            ], // scan uniquely next where changes have been made
             (iterator) =>{
-              iterator.replace(this.parser[i].unicode);
+              console.log("we are trying to replace a word");
+              iterator.replace(this.parser[i].unicode);  // replace the regex finded by a unicode symbol
             }
           );
         }
       }
     });
 
-  }
 
+    let i =0; // In case it is the first time the file is opened, we check the all content of the file.
+    for(i=0;i<this.parser.length;i++){
+      editor.scan(
+        new RegExp(this.parser[i].regex,'g'), // the g argument is used to make sure the scan will find and replace every occurence of the regex
+        (iterator) => {
+          iterator.replace(this.parser[i].unicode);
+        }
+      );
+    }
+
+  }
 
   static adaptViewToEditor(dedukti_client){ // We update the view when we switch from an editor to another one. // NOT HERE OK
 
@@ -201,8 +216,8 @@ class Utils {
 
   static getkeymaps(){
     // We read the parser.json file and put the result in our variable.
-    //.parser = JSON.parse(fs.readFileSync(process.env['ATOM_HOME']+"/packages/dedukti-editor/src/config/parser.json", 'utf8'));
     this.parser = require("./config/parser.json")
+    console.log("the parser data", this.parser);
   }
 }
 
