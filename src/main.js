@@ -2,7 +2,6 @@
 
 const dk = require("./dedukti-editor-view");
 const Utils  = require("./utils").default;
-const URL = require("url");
 const child_process = require("child_process");
 const {
   AutoLanguageClient,
@@ -22,6 +21,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
   activate() {
     super.activate();
+
+    Utils.getkeymaps();
 
     // create the view and variables we will need to handle the extensions.
     this.deduktiEditorView = new dk.default();
@@ -51,14 +52,14 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
 
      // Debug for developper (isma)
-    var command_test = "./lp-lsp_test";
+    /* var command_test = "./lp-lsp_test";
     const childProcess = child_process.spawn(command_test, args,{
     cwd: "/home/isma/"
     });
     // */
 
     // a new process is created and send back
-    //const childProcess = child_process.spawn(command, args);
+    const childProcess = child_process.spawn(command, args);
     return childProcess;
   }
 
@@ -113,6 +114,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   }
 
 
+  //uni:blablakoko okok
 }
 
 module.exports = new DeduktiLanguageClient();

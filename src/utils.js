@@ -2,6 +2,7 @@
 
 const { Convert } = require("atom-languageclient");
 const dk = require("./dedukti-editor-view");
+const fs = require('fs');
 
 class Utils {
 
@@ -134,34 +135,75 @@ class Utils {
     return mydiagnostics;
   }
 
-  static add_event_cursor(editor) { // NOT HERE OK
+  static add_editor_event(editor) { // NOT HERE OK
     // add some listener for cursor in an editor
 
     if(typeof this.currentcursor != "undefined"){
       this.currentcursor.dispose(); //We doesn't need to listen the last file cursor
+    }
+    if(typeof this.currentcursor != "undefined"){
+      this.currentEditorUnicode.dispose();
     }
 
     this.currentcursor = editor.onDidChangeSelectionRange(selection => {
       this.view.updateView(selection, editor);
     });
 
+    let i =0;
+    for(i=0;i<this.parser.length;i++){
+      editor.scan(
+        new RegExp(this.parser[i].regex),
+        (iterator) =>{
+          console.log(iterator);
+          iterator.replace(this.parser[i].unicode);
+        }
+      );
+    }
+
+    this.currentEditorUnicode = editor.onDidStopChanging( (data) => {
+      let i = 0;
+      let j = 0;
+      for(j=0;j<data.changes.length;j++){
+        for(i=0;i<this.parser.length;i++){
+          editor.scanInBufferRange(
+            new RegExp(this.parser[i].regex),
+            [
+              [data.changes[j].newRange.start.row, 0],
+              [data.changes[j].newRange.end.row +1, data.changes[0].newRange.end.colum]
+            ],
+            (iterator) =>{
+              console.log(iterator);
+              iterator.replace(this.parser[i].unicode);
+            }
+          );
+        }
+      }
+    });
+
   }
+
 
   static adaptViewToEditor(dedukti_client){ // We update the view when we switch from an editor to another one. // NOT HERE OK
 
     if (this.view.isInitialized()){ // We check it is correctly initialized
-      this.add_event_cursor(atom.workspace.getActiveTextEditor()); // add cursor event
+      this.add_editor_event(atom.workspace.getActiveTextEditor()); // add cursor event
     }
     else{
       this.view.initialize();
-      this.add_event_cursor(atom.workspace.getActiveTextEditor()); // add cursor event
+      this.add_editor_event(atom.workspace.getActiveTextEditor()); // add cursor event
       this.addeventbutton(); // add events for the buttons within the view
     }
 
   }
 
-}
 
+  static getkeymaps(){
+
+    this.parser = JSON.parse(fs.readFileSync("/home/isma/Documents/dedukti-editor/src/parser.json", 'utf8'));
+
+    console.log(this.parser);
+  }
+}
 
 
 exports.default = Utils;
