@@ -16,20 +16,16 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     super();
 
     atom.config.set("core.debugLSP", true); // Debug by default;
-    this.config = require("./config.json"); // To modify the configuration, check the setting view
+    this.config = require("./config/settings.json"); // To modify the configuration, check the setting view
+    console.log(this.config);
   }
 
   activate() {
     super.activate();
-
-    Utils.getkeymaps();
-
     // create the view and variables we will need to handle the extensions.
     this.deduktiEditorView = new dk.default();
 
-    Utils.initialize(this.deduktiEditorView);
-    Utils.manageView(this);
-    Utils.addKeyBindings();
+    Utils.initialize(this);
   }
 
   getGrammarScopes() {

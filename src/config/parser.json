@@ -1,6 +1,5 @@
 [
   {
-    "name":"forall",
     "regex": "\\\\forall",
     "unicode": "∀"
   }

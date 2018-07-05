@@ -6,11 +6,16 @@ const fs = require('fs');
 
 class Utils {
 
-  static initialize(deduktiEditorView){
-    this.view = deduktiEditorView
+  static initialize(dedukti_client){
+    this.view = dedukti_client.deduktiEditorView;
+
+
+    this.getkeymaps();
+    this.addViewOpener(dedukti_client);
+    this.addKeyBindings();
   }
 
-  static manageView(dedukti_client){ // ow the view is handled by Atom
+  static addViewOpener(dedukti_client){ // ow the view is handled by Atom
 
     dedukti_client._disposable.add(atom.workspace.addOpener( (uri) => {
       if(uri === this.view.getURI()){ //We want our opener to be active only for this uri
@@ -138,23 +143,22 @@ class Utils {
   static add_editor_event(editor) { // NOT HERE OK
     // add some listener for cursor in an editor
 
-    if(typeof this.currentcursor != "undefined"){
+    if(typeof this.currentcursor != "undefined"){ //We check if it is the first time a file is opened
       this.currentcursor.dispose(); //We doesn't need to listen the last file cursor
     }
-    if(typeof this.currentcursor != "undefined"){
-      this.currentEditorUnicode.dispose();
+    if(typeof this.currentcursor != "undefined"){ //We check if it is the first time a file is opened
+      this.currentEditorUnicode.dispose(); //We doesn't need to listen the last file cursor
     }
 
     this.currentcursor = editor.onDidChangeSelectionRange(selection => {
-      this.view.updateView(selection, editor);
+      this.view.updateView(selection, editor); //When the user move the cursor, we update the view
     });
 
-    let i =0;
+    let i =0; // In case it is the first time the file is opened, we check the all content of the file.
     for(i=0;i<this.parser.length;i++){
       editor.scan(
-        new RegExp(this.parser[i].regex),
-        (iterator) =>{
-          console.log(iterator);
+        new RegExp(this.parser[i].regex,'g'),
+        (iterator) => {
           iterator.replace(this.parser[i].unicode);
         }
       );
@@ -172,7 +176,6 @@ class Utils {
               [data.changes[j].newRange.end.row +1, data.changes[0].newRange.end.colum]
             ],
             (iterator) =>{
-              console.log(iterator);
               iterator.replace(this.parser[i].unicode);
             }
           );
@@ -196,12 +199,10 @@ class Utils {
 
   }
 
-
   static getkeymaps(){
-
-    this.parser = JSON.parse(fs.readFileSync("/home/isma/Documents/dedukti-editor/src/parser.json", 'utf8'));
-
-    console.log(this.parser);
+    // We read the parser.json file and put the result in our variable.
+    //.parser = JSON.parse(fs.readFileSync(process.env['ATOM_HOME']+"/packages/dedukti-editor/src/config/parser.json", 'utf8'));
+    this.parser = require("./config/parser.json")
   }
 }
 
