@@ -235,10 +235,11 @@ class DeduktiEditorView {
     let i;
 
     for (i = 0; i < data.length; i++) {
-      if (data[i].goal_fg != null) {
+      if (data[i].goal_info != null) {
         // We get the hypothesis and the goal
-        let curentobj = data[i].goal_fg.type;
-        let goalhypothesis = data[i].goal_fg.hyps;
+        let goal = data[i].goal_info.goals[0];
+        let curentobj = goal.type;
+        let goalhypothesis = goal.hyps;
 
         this.FocusView.push({ // we register within our memory
           path: text_editor_path,     // the file path
