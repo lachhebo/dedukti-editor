@@ -44,15 +44,15 @@ class DeduktiEditorView {
       "h2",
       ["highlight", "title-goals"],
       [],
-      "Goals (FocusView list just as an example)",
+      "Goals",
       this.element
     );
 
     //The List of unresolved goals
     this.list_of_proof = this.createCustomElement(
-      "table",
+      "ol",
       ["goalstable"],
-      [{ name: "align", value: "center" }],
+      [],
       null,
       this.element
     );
@@ -105,12 +105,11 @@ class DeduktiEditorView {
     //First goup of buttons :
     this.div_button_first = this.createCustomElement(
       "div",
-      ["btn-group"],
+      ["btn-group","proof-button"],
       [],
       null,
       this.div_button
     );
-
 
     // Buttons :
 
@@ -130,31 +129,7 @@ class DeduktiEditorView {
       this.div_button_first
     );
 
-    this.but1 = this.createCustomElement(
-      "button",
-      ["btn"],
-      [{ name: "id", value: "first" }],
-      "Update",
-      this.div_button_first
-    );
 
-    //Second group of buttons :
-
-    this.updatetype  = this.createCustomElement(
-      "label",
-      ["input-label"],
-      [],
-      "update Automatically ",
-      this.div_button
-    )
-
-    this.input  = this.createCustomElement(
-      "input",
-      ["input-toggle"],
-      [{name:"type", value:"checkbox"},{name:"checked",value:""}],
-      null,
-      this.updatetype
-    )
     // We consider that the view is now initialized
     this.initialized = true;
   }
@@ -204,23 +179,6 @@ class DeduktiEditorView {
     return "atom://dedukti-editor-info";
   }
 
-  // An example to show how the view is looking.
-  initialise_exemple() {
-    // Just an example
-    let i;
-    let datadisplayed = [];
-    for (i = 0; i < this.FocusView.length; i++) {
-      if (!datadisplayed.includes(this.FocusView[i].goal)) {
-        datadisplayed.push({
-          goal: this.FocusView[i].goal,
-          point: this.FocusView[i].range.start
-        });
-      }
-    }
-
-    this.setGoals(datadisplayed, atom.workspace.getActiveTextEditor());
-  }
-
   // Returns an object that can be retrieved when package is activated
   serialize() {}
 
@@ -235,24 +193,31 @@ class DeduktiEditorView {
     let i;
 
     for (i = 0; i < data.length; i++) {
-      if (data[i].goal_fg != null) {
-        // We get the hypothesis and the goal
-        let curentobj = data[i].goal_fg.type;
-        let goalhypothesis = data[i].goal_fg.hyps;
+      if (data[i].goal_info != null) { // We get the hypothesis and the goal if there is something to display
+        let j=0;
+        // We define the variables we need
+        let curentobj = "";
+        let hypothesislist = [];
+        let goallist = [];
+
+        for(j=0;j<data[i].goal_info.goals.length;j++){ // for each diagnostics, we are looking for the main goal
+          if(  data[i].goal_info.focus === data[i].goal_info.goals[j].gid ){
+            curentobj      = data[i].goal_info.goals[j].type; //we take from the main goal and his hypothesis and his type
+            hypothesislist = data[i].goal_info.goals[j].hyps;
+          }
+          goallist.push(data[i].goal_info.goals[j].type); //in any case, we add the goal in the goalslist
+        }
 
         this.FocusView.push({ // we register within our memory
           path: text_editor_path,     // the file path
-          range: data[i].range,       //the range to attribuate to this view
-          goal: curentobj,            //the current goal
-          hypothesis: goalhypothesis  //the list of hypothesis
+          range: data[i].range,       // the range to attribuate to this view
+          goal: curentobj,            // the current goal
+          hypothesis: hypothesislist,  // the list of hypothesis
+          goals : goallist            // the list of unresolved goals
         });
       }
     }
 
-    //TODO Remove the initialise_exemple and replace it with an handler for goal view.
-    this.initialise_exemple(); //For the moment we initialise the goal view here.
-
-    //return data;
   }
 
   // A function to update the focus part of the view when it's needed
@@ -288,14 +253,16 @@ class DeduktiEditorView {
           // we display the information contained in the focusView.
           this.setCurrentObjectif(this.FocusView[i].goal);
           this.setHypothesis(this.FocusView[i].hypothesis);
-          //this.markGoal(this.FocusView[i].goal); //Ultimately, we want to provide some visual information to the user.
-          none_objective = 1; // We can now consider that we found a data within our tab that correspond to the situation
+          this.setGoals(this.FocusView[i].goals);
+          this.markGoal(this.FocusView[i]);   // we want to provide some visual information to the user.
+          none_objective = 1;                 // We can now consider that we found a data within our tab that correspond to the situation
         }
       }
       if (none_objective === 0) {
         //If no FocusView is associated with the cursor position
         this.setCurrentObjectif(""); // The currentObjective is set to null.
         this.cleanHypothesis(); //We clean every hypothesis.
+        this.cleanGoals(); //We clean every goals.
       }
     }
   }
@@ -310,7 +277,7 @@ class DeduktiEditorView {
   //update the hypothesis list
   setHypothesis(hypothesis) {
     let i = 0;
-    this.cleanHypothesis(); // We begin by erased what was displayed before on the hypothesis list
+    this.cleanHypothesis(); // We begin by erasing what was displayed before on the hypothesis list
 
     // Then, we display the hypothesis we want
     for (i = 0; i < hypothesis.length; i++) {
@@ -350,63 +317,20 @@ class DeduktiEditorView {
     }
   }
 
-  //update the goals list (need a bit of rewrite)
+  //update the goals list
   setGoals(goallist, editor) {
-    this.cleanGoals();
+    this.cleanGoals(); // We begin by erasing what was displayed before on the goals list
     let i = 0;
 
-    for (i = 0; i < goallist.length; i++) {
+    for (i = 0; i < goallist.length; i++) { // for each goal, we add an element in the list
       let line = this.createCustomElement(
-        "tr",               //type
-        ["goalline"],       //classList
-        [],                 //attributes
-        null,               //textcontent
-        this.list_of_proof  //parent node
+        "li",                 //type
+        ["goallistelement"],  //classList
+        [],                   //attributes
+        goallist[i],          //textcontent
+        this.list_of_proof    //parent node
       );
-
-      //We create the element we need to display a list of goals
-      let firstcol = this.createCustomElement(
-        "td",               //type
-        ["goalcolumn"],     //classList
-        [],                 //attributes
-        goallist[i].goal,   //textcontent
-        line                //parent node
-      );
-
-      let secondcol = this.createCustomElement(
-        "td",
-        ["goalcolumn"],
-        [],
-        null,
-        line
-      );
-
-      let btn = this.createCustomElement( // within the second goal, we add a button
-        "button",
-        ["btn", "btn-xs", "btn-info"],
-        [],
-        "go !",
-        secondcol
-      );
-
-      //We create a listener for each buttons we add.
-      this.addNewListener(goallist, i, btn, editor);
     }
-  }
-
-  addNewListener(goallist, index, button, editor) {
-    //We create a listener for each buttons we add.
-
-    //The aim of this function is to redirect the user cursor to a proof.
-    button.addEventListener("click", function() {
-      //When we click on the button, the cursor is move to the adapted area.
-      editor.setCursorScreenPosition([
-        goallist[index].point.line,
-        goallist[index].point.character
-      ]);
-    });
-
-    //this.markgoal(goallist[index].goal); //TODO : add an UI element to help the user find what is looking for.
   }
 
   /* A couple of functions to clean the view */
@@ -425,29 +349,19 @@ class DeduktiEditorView {
   /* A couple of function to enhance the user experience */
 
   //The aim of this function is to help the user finding which part of the goals list is related to the focus.
-  markGoal(goalstring) { //TODO : MAKE This work
-    /*
-    let oldgoal = this.list_of_proof.getElementsByClassName("text-info");
-    console.log(oldgoal);
-    if( oldgoal = null){
-      oldgoal.classList.remove("text-info");
-    }
-    */
+  markGoal(dataview) {
 
-    let goals = this.list_of_proof.getElementsByClassName("goals");
-    //console.log(goals);
+    let goals = this.list_of_proof.getElementsByClassName("goallistelement"); // we find every element currently in the goalslist
+
     let i = 0;
-    let find = 0;
 
-    while (find === 0 && i < goals.length) {
-      //console.log(goals[i].innerText);
-      //console.log(goalstring);
-      //console.log(goalstring.includes(goals[i].innerText));
-      if (goalstring.includes(goals[i].innerText)) {
-        goals[i].classList.add("text-info");
-        find = 1;
+    for(i=0; i < goals.length;i++) { //for ecah of those elements
+      if(goals[i].textContent === dataview.goal){ //we vheck if it type is the same as the current goal
+        goals[i].classList.add("text-info"); //if yes, we higlight it
       }
-      i++;
+      else if (goals[i].classList.contains("text-info")){ //if no, we remove the higlighting if necessary
+        goals[i].classList.remove("text-info");
+      }
     }
   }
 

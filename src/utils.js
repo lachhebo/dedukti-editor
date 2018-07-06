@@ -129,7 +129,7 @@ class Utils {
         ]);
         marker.setProperties({ persistent: false, invalidate: "touch" }); //The color disappears when 'touch'
         let decoration = editor.decorateMarker(marker, {
-          type: "text",
+          type: "line-number",
           class: "Failed_line"
         });
         // we want those message to be displayed on the diagnostics panel.
@@ -162,7 +162,6 @@ class Utils {
   }
 
   static add_parser_event(editor){
-    console.log("okay");
     if(typeof this.currentEditorUnicode != "undefined"){ //We check if it is the first time a file is opened
       this.currentEditorUnicode.dispose(); //We doesn't need to listen the last file cursor
     }
@@ -180,7 +179,6 @@ class Utils {
               [data.changes[j].newRange.end.row +1, data.changes[0].newRange.end.colum]
             ], // scan uniquely next where changes have been made
             (iterator) =>{
-              console.log("we are trying to replace a word");
               iterator.replace(this.parser[i].unicode);  // replace the regex finded by a unicode symbol
             }
           );
@@ -217,7 +215,6 @@ class Utils {
   static getkeymaps(){
     // We read the parser.json file and put the result in our variable.
     this.parser = require("./config/parser.json")
-    console.log("the parser data", this.parser);
   }
 }
 

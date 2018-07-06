@@ -55,8 +55,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
     var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
 
-     // Debug for developper (isma)
-    /* var command_test = "./lp-lsp_test";
+    /* // Debug for developper (isma)
+     var command_test = "./lp-lsp_test";
     const childProcess = child_process.spawn(command_test, args,{
     cwd: "/home/isma/"
     });
@@ -102,7 +102,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       );
     };
 
-    //TODO WORKAROUND AGAINST ISSUE NUMERO 1
+    //TODO WORKAROUND AGAINST ISSUE NUMERO 1 
 
   }
 
