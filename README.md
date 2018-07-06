@@ -20,27 +20,24 @@ $ opam install lambdapi-lsp
 
 ## Utilisation
 
-- with this version of dedukti-editor, you can check and write your
-  proofs.
+### functionnality
 
-## Debug :
+- check your proofs.
+- display errors message where errors spring from
+- list the unresolved goals depending on the position of the cursor
+- list the hypothesis linked to th current goal.
+- buttons and key bindings to navigate withn proofs.
+- basic synthax for dk file
 
-To debug, open a developper console (Ctrl+Shift+I) and set the filter to verbose.
 
-## TODO :
-
-- implement a new command to handle the view.
-- implement goals on the view
-- add an action for each button
-
-## Keybindings :
+### Keybindings :
 
 | Key |  Action |
 |--|--|
 | ctrl-alt-p | Next step |
 | ctrl-alt-m | Last step |
 
-### Development instructions
+## Development instructions
 
 If you want to contribute to development of the mode you can clone
 this repository from GitHub:
@@ -54,3 +51,7 @@ $ apm link
 
 Note that `apm install` will also place the `git` repository in
 `~/.atom/packages/dedukti-editor/`
+
+### Debug :
+
+To debug, open a developper console (Ctrl+Shift+I) and set the filter to verbose.
