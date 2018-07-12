@@ -9,7 +9,6 @@ class Utils {
   static initialize(dedukti_client){
     this.view = dedukti_client.deduktiEditorView;
 
-
     this.getkeymaps();
     this.addViewOpener(dedukti_client);
     this.addKeyBindings();
@@ -46,10 +45,9 @@ class Utils {
   static addKeyBindings(){ // add some keybindings
 
     atom.commands.add("atom-workspace", {
-      "dedukti-editor:next": () => this.view.nextFocus() // CTRL ALT P
-    });
+      "dedukti-editor:next": () => this.view.nextFocus() // ALT down
     atom.commands.add("atom-workspace", {
-      "dedukti-editor:last": () => this.view.lastFocus() // CTRL ALT M
+      "dedukti-editor:last": () => this.view.lastFocus() // ALT up
     });
 
   }
@@ -110,11 +108,19 @@ class Utils {
             params.diagnostics[i].range.end.character
           ]
         ]);
-        marker.setProperties({ persistent: false, invalidate: "touch" }); //The color is diseappearing when 'touch'
-        let decoration = editor.decorateMarker(marker, {
-          type: "line-number",
-          class: "Completed_lines"
-        });
+        marker.setProperties({ persistent: false, invalidate: "never" }); //The color is diseappearing when 'touch'
+        if(atom.config.get("dedukti-editor.style") === "bar_mode"){
+          let decoration = editor.decorateMarker(marker, {
+            type: "line-number",
+            class: "Completed_lines"
+          });
+        }
+        else if(atom.config.get("dedukti-editor.style") === "coloredline_mode"){
+          let decoration = editor.decorateMarker(marker, {
+            type: "text",
+            class: "Completed_lines_colored_mode"
+          });
+        }
       } else {
         // Hence, in red
         var marker = editor.markScreenRange([
@@ -127,11 +133,19 @@ class Utils {
             params.diagnostics[i].range.end.character
           ]
         ]);
-        marker.setProperties({ persistent: false, invalidate: "touch" }); //The color disappears when 'touch'
-        let decoration = editor.decorateMarker(marker, {
-          type: "line-number",
-          class: "Failed_line"
-        });
+       marker.setProperties({ persistent: false, invalidate: "never" }); //The color disappears when 'touch'
+        if(atom.config.get("dedukti-editor.style") === "bar_mode"){
+          let decoration = editor.decorateMarker(marker, {
+            type: "line-number",
+            class: "Failed_line"
+          });
+        }
+        else if(atom.config.get("dedukti-editor.style") === "coloredline_mode"){
+          let decoration = editor.decorateMarker(marker, {
+            type: "text",
+            class: "Failed_line"
+          });
+        }
         // we want those message to be displayed on the diagnostics panel.
         mydiagnostics.push(params.diagnostics[i]);
       }

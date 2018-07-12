@@ -28,14 +28,14 @@ $ opam install lambdapi-lsp
 - list the hypothesis linked to th current goal.
 - buttons and key bindings to navigate withn proofs.
 - basic synthax for dk file
-
+- choose the style you like the most.
 
 ### Keybindings :
 
 | Key |  Action |
 |--|--|
-| ctrl-alt-p | Next step |
-| ctrl-alt-m | Last step |
+| alt-down | Next step |
+| alt-up | Last step |
 
 ## Development instructions
 

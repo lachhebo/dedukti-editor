@@ -52,8 +52,8 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   startServerProcess(projectPath) {
 
     // we get the command and args from the setting panel
-    var command = atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath");
-    var args = atom.config.get("dedukti-editor.DeduktiSettings.lspServerArgs");
+    var command = atom.config.get("dedukti-editor.lspServerPath");
+    var args = atom.config.get("dedukti-editor.lspServerArgs");
 
     /* // Debug for developper (isma)
      var command_test = "./lp-lsp_test";
@@ -71,7 +71,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     //TODO: Use the `which` module to provide a better error in the case of a missing server.
     atom.notifications.addError(
       "Error starting the language server: " +
-      atom.config.get("dedukti-editor.DeduktiSettings.lspServerPath"),
+      atom.config.get("dedukti-editor.lspServerPath"),
       {
         dismissable: true,
         description:
@@ -102,7 +102,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
       );
     };
 
-    //TODO WORKAROUND AGAINST ISSUE NUMERO 1 
+    //TODO WORKAROUND AGAINST ISSUE NUMERO 1
 
   }
 
