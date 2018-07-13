@@ -1,4 +1,4 @@
-# dedukti-editor [![Build Status](https://travis-ci.com/lachhebo/dedukti-editor.svg?branch=master)](https://travis-ci.com/lachhebo/dedukti-editor)
+# dedukti-editor [![Build Status](https://travis-ci.com/lachhebo/dedukti-editor.svg?branch=master)](https://travis-ci.com/lachhebo/dedukti-editor) [![Dependency Status](https://david-dm.org/lachhebo/dedukti-editor.svg)](https://david-dm.org/lachhebo/dedukti-editor)
 
 ## Installation
 
