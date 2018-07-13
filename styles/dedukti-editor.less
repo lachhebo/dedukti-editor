@@ -5,6 +5,10 @@
 @import "ui-variables";
 @import "syntax-variables";
 
+
+/////////////////////  editor diagnostic style ///////////////////////////////////
+
+
 .Completed_lines {
   background-color:@text-color-success;
 }
@@ -21,6 +25,8 @@
   background-color: @background-color-warning;
 }
 
+///////////////////// The view /////////////////////////////////////////////////
+
 .dedukti-editor {
   contain: size;
   overflow: auto;
@@ -28,22 +34,41 @@
   flex-direction: column;
 }
 
-.focus_data {
-  text-align: center;
-  font-size: 120%;
-}
-
-
-.hypo-list{
-  margin-top: 3px;
-}
 .title-goals {
   text-align: center;
+}
+
+//.goalstable Not used yet
+
+.goallistelement{
+  margin: auto;
+  font-size: 120%;
 }
 
 .title-focus {
   text-align: center;
 }
+
+.list_of_hypothesis{
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.focus_data {
+  text-align: center;
+  font-size: 120%;
+}
+
+.hyponame{
+  color: red;
+}
+
+.hypodot{
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+//.hypotype Not used yet
 
 .bar-proof {
   margin: auto;
@@ -53,18 +78,6 @@
   width: 200px;
 }
 
-.proof-button {
-  margin-left:auto;
-  margin-right: auto;
-  bottom: 20px;
-  //padding-bottom: 1px;
-}
-
-.list_of_hypothesis{
-  margin-bottom: 5px;
-}
-//.goalstable{}
-
 .proof-objectif {
   margin-bottom: auto;
   margin-top: 5px;
@@ -72,18 +85,10 @@
   margin-right: auto;
 }
 
-.goallistelement{
-  margin: auto;
-  font-size: 120%;
-}
 
-
-.hypodot{
-  padding-left: 3px;
-  padding-right: 3px;
-}
-
-.goalcolumn{
-  padding-left: 3px;
-  padding-right: 3px;
+.proof-button {
+  margin-left:auto;
+  margin-right: auto;
+  bottom: 20px;
+  //padding-bottom: 1px;
 }

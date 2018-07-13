@@ -5,14 +5,6 @@ class DeduktiEditorView {
     this.FocusView = [];
     this.initialized = false;
 
-    this.element = this.createCustomElement(
-      "div",
-      ["dedukti-editor"],
-      [{ name: "id", value: "proofview" }],
-      null,
-      null
-    );
-
   }
 
   getDefaultLocation() {
@@ -60,7 +52,7 @@ class DeduktiEditorView {
     //Second Title
     this.focus = this.createCustomElement(
       "h2",
-      ["highlight", "title-goals"],
+      ["highlight", "title-focus"],
       [],
       "Focus",
       this.element

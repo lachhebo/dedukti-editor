@@ -46,6 +46,7 @@ class Utils {
 
     atom.commands.add("atom-workspace", {
       "dedukti-editor:next": () => this.view.nextFocus() // ALT down
+    });
     atom.commands.add("atom-workspace", {
       "dedukti-editor:last": () => this.view.lastFocus() // ALT up
     });
