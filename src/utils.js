@@ -155,7 +155,7 @@ class Utils {
     return mydiagnostics;
   }
 
-  static add_editor_event(editor) { // NOT HERE OK
+  static add_editor_event(editor) { 
     // add some listener for cursor in an editor
 
     this.add_cursor_event(editor); // the cursor event which update the view
