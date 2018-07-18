@@ -20,15 +20,18 @@ $ opam install lambdapi-lsp
 
 ## Utilisation
 
-### Functionnality
+### Features
 
-- check your proofs.
-- display errors message where errors spring from
-- list the unresolved goals depending on the position of the cursor
-- list the hypothesis linked to th current goal.
-- buttons and key bindings to navigate withn proofs.
-- basic synthax for dk file
-- choose the style you like the most.
+- [x] Check proofs
+- [x] Display errors message where errors spring from
+- [x] List the unresolved goals depending on the position of the cursor
+- [x] List the hypothesis linked to th current goal
+- [x] Buttons and key bindings to navigate within a proof
+- [x] Basic synthax for dk file
+- [x] Style manager
+- [x] Unicode caracters manager
+- [ ] Incremental updates
+- [ ] Update Manually
 
 ### Keybindings :
 
