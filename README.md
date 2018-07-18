@@ -20,7 +20,7 @@ $ opam install lambdapi-lsp
 
 ## Utilisation
 
-### functionnality
+### Functionnality
 
 - check your proofs.
 - display errors message where errors spring from

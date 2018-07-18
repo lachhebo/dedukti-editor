@@ -56,10 +56,12 @@ class Utils {
   static addeventbutton() { // add some listener for buttons
 
     this.view.but2.addEventListener("click", () => {
+      console.log("heuresusement que je vérifie");
       this.view.nextFocus();
     });
 
     this.view.but3.addEventListener("click", () => {
+      console.log("heuresusement que je vérifie 2");
       this.view.lastFocus();
     });
 
@@ -155,7 +157,7 @@ class Utils {
     return mydiagnostics;
   }
 
-  static add_editor_event(editor) { 
+  static add_editor_event(editor) {
     // add some listener for cursor in an editor
 
     this.add_cursor_event(editor); // the cursor event which update the view

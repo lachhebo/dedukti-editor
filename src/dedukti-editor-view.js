@@ -81,7 +81,7 @@ class DeduktiEditorView {
       "h3",
       ["proof-objectif", "text-highlight"],
       [],
-      "Exemple d'objectif courant",
+      "",
       this.element
     );
 

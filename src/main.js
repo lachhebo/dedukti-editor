@@ -84,9 +84,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
 
     // we hack onPublishDiagnostics message before it is received by atom and handle positive message
     connection.onPublishDiagnostics = function(callback) {
-      if (!module.exports.deduktiEditorView.isInitialized()){ // We check the view has been initialised
-        module.exports.deduktiEditorView.initialize();  // If not, we initialize it
-      }
       let mycallback = function(params) {
         // we add our function before the diagnostics are processed by atomlanguageclient
         this.deduktiEditorView.updateDiagnostics(
