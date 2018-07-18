@@ -23,8 +23,6 @@ class DeduktiLanguageClient extends AutoLanguageClient {
   constructor() {
     // at the opening of Atom
     super();
-
-    atom.config.set("core.debugLSP", true); // Debug by default;
     this.config = require("./config/settings.json"); // To modify the configuration, check the setting view
   }
 

@@ -7,10 +7,6 @@
     "type": "array",
     "default": []
   },
-  "automaticUpdate": {
-    "type": "boolean",
-    "default": true
-  },
   "style":{
     "type": "string",
     "default": "bar_mode",
