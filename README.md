@@ -10,13 +10,13 @@
 
 ## Installation
 
-You need Atom >= 1.21. Then run:
+You need atom-ide-ui, to install it, run :
 
 ```
-$ apm install atom-ide-ui lachhebo/dedukti-editor
+$ apm install atom-ide-ui
 ```
 
-This will place both packages in `~/.atom/packages`.
+This will place the package in `~/.atom/packages`.
 
 ### Installing the Dedukti Language Server:
 
