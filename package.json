@@ -2,7 +2,7 @@
   "name": "dedukti-editor",
   "main": "src/main.js",
   "version": "0.0.0",
-  "description": "A IDE for lambdapi (Dedukti)",
+  "description": "An interface for Dedukti, the proof assistant",
   "repository": "https://github.com/lachhebo/dedukti-editor",
   "license": "MIT",
   "engines": {
