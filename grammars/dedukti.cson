@@ -30,7 +30,7 @@ patterns: [ # An array of individual pattern declarations.
       "name": "entity.name.function"
   }
   {
-    "match":"[A-Z]\\w*"
+    "match":"\\b[A-Z]\\w*"
     "name": "entity.name.type"
   }
   {
