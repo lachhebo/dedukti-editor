@@ -1,5 +1,13 @@
 # dedukti-editor [![Build Status](https://travis-ci.com/lachhebo/dedukti-editor.svg?branch=master)](https://travis-ci.com/lachhebo/dedukti-editor) [![Dependency Status](https://david-dm.org/lachhebo/dedukti-editor.svg)](https://david-dm.org/lachhebo/dedukti-editor)
 
+
+## Screenshots 
+
+![ScreenShot](https://raw.github.com/lachhebo/dedukti-editor/screenshot/Capture1.png)
+
+![ScreenShot](https://raw.github.com/lachhebo/dedukti-editor/screenshot/Capture3.png)
+
+
 ## Installation
 
 You need Atom >= 1.21. Then run:
