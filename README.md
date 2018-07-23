@@ -21,8 +21,8 @@ $ apm install atom-ide-ui
 `dedukti-editor` needs a language server for Dedukti. The easiest method is to use the [OPAM](https://opam.ocaml.org/) package manager:
 ```bash
 $ opam switch 4.06.1
-$ opam repository add deducteam https://scm.gforge.inria.fr/anonscm/git/opam-deducteam/opam-deducteam.git
 $ eval `opam config env`
+$ opam repository add deducteam https://scm.gforge.inria.fr/anonscm/git/opam-deducteam/opam-deducteam.git
 $ opam install ocamlfind ocamlbuild bindlib earley earley-ocaml
 $ opam install lambdapi-lsp
 ```
