@@ -16,14 +16,21 @@ You need atom-ide-ui, to install it, run :
 $ apm install atom-ide-ui
 ```
 
-This will place the package in `~/.atom/packages`.
-
 ### Installing the Dedukti Language Server:
 
 `dedukti-editor` needs a language server for Dedukti. The easiest method is to use the [OPAM](https://opam.ocaml.org/) package manager:
 ```bash
+$ opam switch 4.06.1
 $ opam repository add deducteam https://scm.gforge.inria.fr/anonscm/git/opam-deducteam/opam-deducteam.git
+$ eval `opam config env`
+$ opam install ocamlfind ocamlbuild bindlib earley earley-ocaml
 $ opam install lambdapi-lsp
+```
+
+In case the installation doesn't work, don't forget to update your packages :
+```bash
+$ opam update 
+$ opam upgrade
 ```
 
 ## Utilisation
@@ -60,7 +67,7 @@ $ apm install
 $ apm link
 ```
 
-Note that `apm install` will also place the `git` repository in
+Note that `apm install` will place the package in
 `~/.atom/packages/dedukti-editor/`
 
 ### Debug :
@@ -74,4 +81,4 @@ server, execute the following piece of code in the Console.
 atom.config.set('core.debugLSP', true)
 ```
 
-Reload the window and you should see all the messages.
+Reload the window and you should see every messages.
