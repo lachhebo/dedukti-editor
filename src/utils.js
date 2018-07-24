@@ -89,9 +89,14 @@ class Utils {
       return [];
     } else {
       //we destroy previous color markers on this editor
-      let marker_color = editor.findMarkers({ persistent: false });
-      for (z = 0; z < marker_color.length; z++) {
-        marker_color[z].destroy();
+      /*
+      (**1) This is a workaround specific to dedukti until modificationa are made upstream in the server.
+      */
+      if(params.diagnostics.length != 1 || params.diagnostics[0].message != "Parse error."){ //when a parse error occurs, everything diseapper, we don't want that (**1)
+        let marker_color = editor.findMarkers({ persistent: false }); 
+        for (z = 0; z < marker_color.length; z++) {
+          marker_color[z].destroy();
+        }
       }
     }
     // Then we put new color markers on this editor

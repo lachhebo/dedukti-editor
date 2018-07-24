@@ -181,7 +181,14 @@ class DeduktiEditorView {
 
   /* We get the data from diagnostics for the moment */
   updateDiagnostics(data, text_editor_path) {
-    this.FocusView = []; // We forget every diagnostics sent before by the server.
+
+    /*
+    (**1) This is a workaround specific to dedukti until modificationa are made upstream in the server.
+    */
+    if(data.length != 1 || data[0].message!="Parse error."){  //when a parse error occurs, everything diseapper, we don't want that (**1)
+      this.FocusView = []; // We forget every diagnostics sent before by the server.
+    }
+
     let i;
 
     for (i = 0; i < data.length; i++) {
