@@ -179,45 +179,7 @@ class DeduktiEditorView {
     this.element.remove();
   }
 
-  /* We get the data from diagnostics for the moment */
-  updateDiagnostics(data, text_editor_path) {
 
-    /*
-    (**1) This is a workaround specific to dedukti until modificationa are made upstream in the server.
-    */
-    if(data.length != 1 || data[0].message!="Parse error."){  //when a parse error occurs, everything diseapper, we don't want that (**1)
-      this.FocusView = []; // We forget every diagnostics sent before by the server.
-    }
-
-    let i;
-
-    for (i = 0; i < data.length; i++) {
-      if (data[i].goal_info != null) { // We get the hypothesis and the goal if there is something to display
-        let j=0;
-        // We define the variables we need
-        let curentobj = "";
-        let hypothesislist = [];
-        let goallist = [];
-
-        for(j=0;j<data[i].goal_info.goals.length;j++){ // for each diagnostics, we are looking for the main goal
-          if(  data[i].goal_info.focus === data[i].goal_info.goals[j].gid ){
-            curentobj      = data[i].goal_info.goals[j].type; //we take from the main goal and his hypothesis and his type
-            hypothesislist = data[i].goal_info.goals[j].hyps;
-          }
-          goallist.push(data[i].goal_info.goals[j].type); //in any case, we add the goal in the goalslist
-        }
-
-        this.FocusView.push({ // we register within our memory
-          path: text_editor_path,     // the file path
-          range: data[i].range,       // the range to attribuate to this view
-          goal: curentobj,            // the current goal
-          hypothesis: hypothesislist,  // the list of hypothesis
-          goals : goallist            // the list of unresolved goals
-        });
-      }
-    }
-
-  }
 
   // A function to update the focus part of the view when it's needed
   updateView(selection, editor) {

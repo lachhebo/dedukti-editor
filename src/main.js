@@ -84,11 +84,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     connection.onPublishDiagnostics = function(callback) {
       let mycallback = function(params) {
         // we add our function before the diagnostics are processed by atomlanguageclient
-        this.deduktiEditorView.updateDiagnostics(
-          params.diagnostics,
-          Convert.uriToPath(params.uri)
-        ); // the update diagnostics function will capture the goals embedded within the diagnostics
-        params.diagnostics = Utils.colorBuffer(params); // the colorBuffer function will tcolor in red and green the editor and remove positive diagnostics
+        params.diagnostics = Utils.updateDiagnostics(params); // the colorBuffer function will color in red and green the editor,remove positive diagnostics and update the panel
         callback(params); // Eventually, the remaining diagnostics are processed by atomlanguageclient
       };
       connection._onNotification(

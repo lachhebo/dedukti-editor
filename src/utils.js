@@ -66,98 +66,141 @@ class Utils {
     //TODO ACTIVATE AUTOMATIC UPDATE
   }
 
-  static colorBuffer(params) {
+  static updateDiagnostics(params) {
     // every variable we need.
     let path = Convert.uriToPath(params.uri);
     let i = 0;
-    let z = 0;
-    let j = 0;
     var mydiagnostics = new Array();
     let text_editors = atom.workspace.getTextEditors(); // we get all active editors in atom
-    let editor = "";
 
     //we want to get the editor concerned by the diagnostics
-    for (j = 0; j < text_editors.length; j++) {
-      let text_editor_path = text_editors[j].getPath();
-      if (text_editor_path == path) {
-        editor = text_editors[j];
-      }
-    }
+    let editor = this.getEditorDiagnosed(text_editors, path);
 
     if (editor === "") {
       //the editor concerned by the diagnostics is not open.
       return [];
     } else {
       //we destroy previous color markers on this editor
-      /*
-      (**1) This is a workaround specific to dedukti until modificationa are made upstream in the server.
-      */
-      if(params.diagnostics.length != 1 || params.diagnostics[0].message != "Parse error."){ //when a parse error occurs, everything diseapper, we don't want that (**1)
-        let marker_color = editor.findMarkers({ persistent: false }); 
-        for (z = 0; z < marker_color.length; z++) {
-          marker_color[z].destroy();
-        }
-      }
+      this.destroyDiagnosticsMarkers(params,editor);
     }
+
     // Then we put new color markers on this editor
+    this.destroyDataView(params);
 
     for (i = 0; i < params.diagnostics.length; i++) {
       if (params.diagnostics[i].message === "OK") {
-        //  Hence Green
-        var marker = editor.markScreenRange([
-          [
-            params.diagnostics[i].range.start.line,
-            params.diagnostics[i].range.start.character
-          ],
-          [
-            params.diagnostics[i].range.end.line,
-            params.diagnostics[i].range.end.character
-          ]
-        ]);
-        marker.setProperties({ persistent: false, invalidate: "never" }); //The color is diseappearing when 'touch'
-        if(atom.config.get("dedukti-editor.style") === "bar_mode"){
-          let decoration = editor.decorateMarker(marker, {
-            type: "line-number",
-            class: "Completed_lines"
-          });
+
+        this.processDataView(params,i,path);
+        //  Hence in Green
+
+        if(atom.config.get("dedukti-editor.style") === "bar_mode"){ // style manager
+          this.colorMarkEditor("Completed_lines", "line-number", editor, params,i);
+        } else if(atom.config.get("dedukti-editor.style") === "coloredline_mode"){
+          this.colorMarkEditor("Completed_lines_colored_mode", "text", editor, params,i);
         }
-        else if(atom.config.get("dedukti-editor.style") === "coloredline_mode"){
-          let decoration = editor.decorateMarker(marker, {
-            type: "text",
-            class: "Completed_lines_colored_mode"
-          });
-        }
+
       } else {
-        // Hence, in red
-        var marker = editor.markScreenRange([
-          [
-            params.diagnostics[i].range.start.line,
-            params.diagnostics[i].range.start.character
-          ],
-          [
-            params.diagnostics[i].range.end.line,
-            params.diagnostics[i].range.end.character
-          ]
-        ]);
-       marker.setProperties({ persistent: false, invalidate: "never" }); //The color disappears when 'touch'
-        if(atom.config.get("dedukti-editor.style") === "bar_mode"){
-          let decoration = editor.decorateMarker(marker, {
-            type: "line-number",
-            class: "Failed_line"
-          });
+
+        this.processDataView(params,i,path);
+        // Hence, in Red
+        if(atom.config.get("dedukti-editor.style") === "bar_mode"){ // style manager
+          this.colorMarkEditor("Failed_line", "line-number", editor, params,i);
+        } else if(atom.config.get("dedukti-editor.style") === "coloredline_mode"){
+          this.colorMarkEditor("Failed_line", "text", editor, params,i);
         }
-        else if(atom.config.get("dedukti-editor.style") === "coloredline_mode"){
-          let decoration = editor.decorateMarker(marker, {
-            type: "text",
-            class: "Failed_line"
-          });
-        }
+
         // we want those message to be displayed on the diagnostics panel.
         mydiagnostics.push(params.diagnostics[i]);
       }
     }
+
     // we return errors message to be displayed on the diagnostics panel.
     return mydiagnostics;
+  }
+
+  static getEditorDiagnosed(text_editors, path){
+
+    //we want to get the editor concerned by the diagnostics
+    let j= 0;
+    let editor = "";
+    for (j = 0; j < text_editors.length; j++) {
+      let text_editor_path = text_editors[j].getPath();
+      if (text_editor_path == path) {
+        editor = text_editors[j];
+      }
+    }
+    return editor;
+
+  }
+
+  static destroyDiagnosticsMarkers(params,editor){
+
+    //we destroy previous color markers on this editor
+    /*
+    (**1) This is a workaround specific to dedukti until modificationa are made upstream in the server.
+    */
+    let z = 0;
+    if(params.diagnostics.length != 1 || params.diagnostics[0].message != "Parse error."){ //when a parse error occurs, everything diseapper, we don't want that (**1)
+      let marker_color = editor.findMarkers({ persistent: false });
+      for (z = 0; z < marker_color.length; z++) {
+        marker_color[z].destroy();
+      }
+    }
+  }
+
+  static destroyDataView(params){
+    if(params.diagnostics.length != 1 || params.diagnostics[0].message!="Parse error."){  //when a parse error occurs, everything diseapper, we don't want that (**1)
+      this.view.FocusView = []; // We forget every diagnostics sent before by the server.
+    }
+  }
+
+  static processDataView(params,i,path){
+
+    if (params.diagnostics[i].goal_info != null) { // We get the hypothesis and the goal if there is something to display
+      let j=0;
+      // We define the variables we need
+      let curentobj = "";
+      let hypothesislist = [];
+      let goallist = [];
+
+      for(j=0;j<params.diagnostics[i].goal_info.goals.length;j++){ // for each diagnostics, we are looking for the main goal
+        if(  params.diagnostics[i].goal_info.focus === params.diagnostics[i].goal_info.goals[j].gid ){
+          curentobj      = params.diagnostics[i].goal_info.goals[j].type; //we take from the main goal and his hypothesis and his type
+          hypothesislist = params.diagnostics[i].goal_info.goals[j].hyps;
+        }
+        goallist.push(params.diagnostics[i].goal_info.goals[j].type); //in any case, we add the goal in the goalslist
+      }
+
+      this.view.FocusView.push({ // we register within our memory
+        path: path,     // the file path
+        range: params.diagnostics[i].range,       // the range to attribuate to this view
+        goal: curentobj,            // the current goal
+        hypothesis: hypothesislist,  // the list of hypothesis
+        goals : goallist            // the list of unresolved goals
+      });
+    }
+
+  }
+
+  static colorMarkEditor(mode, type, editor, params,i){
+    var marker = editor.markScreenRange([
+      [
+        params.diagnostics[i].range.start.line,
+        params.diagnostics[i].range.start.character
+      ],
+      [
+        params.diagnostics[i].range.end.line,
+        params.diagnostics[i].range.end.character
+      ]
+    ]);
+
+    marker.setProperties({ persistent: false, invalidate: "never" }); //The color is diseappearing when 'touch'
+
+    let decoration = editor.decorateMarker(marker, {
+      type: type,
+      class: mode
+    });
+
   }
 
   static add_editor_event(editor) {
