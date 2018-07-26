@@ -14,7 +14,7 @@ class Utils {
     this.addKeyBindings();
   }
 
-  static addViewOpener(dedukti_client){ // ow the view is handled by Atom
+  static addViewOpener(dedukti_client){ // how the view is handled by Atom
 
     dedukti_client._disposable.add(atom.workspace.addOpener( (uri) => {
       if(uri === this.view.getURI()){ //We want our opener to be active only for this uri
@@ -28,7 +28,7 @@ class Utils {
         if (typeof editor != "undefined"){
           let scopeName = editor.getGrammar().scopeName;
           if(dedukti_client.getGrammarScopes().includes(scopeName)){
-            atom.workspace.open(this.view.getURI()); // if it is not alrealdy open, We open the view
+            atom.workspace.open(this.view.getURI()); // if it is not alrealdy opened, we open the view
             this.adaptViewToEditor(dedukti_client); // we just update it.
           }
           else{
@@ -114,7 +114,7 @@ class Utils {
       }
     }
 
-    // we return errors message to be displayed on the diagnostics panel.
+    // we return error messages to be displayed on the diagnostics panel.
     return mydiagnostics;
   }
 
@@ -137,7 +137,7 @@ class Utils {
 
     //we destroy previous color markers on this editor
     /*
-    (**1) This is a workaround specific to dedukti until modificationa are made upstream in the server.
+    (**1) This is a workaround specific to dedukti until modifications are made upstream in the server.
     */
     let z = 0;
     if(params.diagnostics.length != 1 || params.diagnostics[0].message != "Parse error."){ //when a parse error occurs, everything diseapper, we don't want that (**1)
@@ -149,8 +149,8 @@ class Utils {
   }
 
   static destroyDataView(params){
-    if(params.diagnostics.length != 1 || params.diagnostics[0].message!="Parse error."){  //when a parse error occurs, everything diseapper, we don't want that (**1)
-      this.view.FocusView = []; // We forget every diagnostics sent before by the server.
+    if(params.diagnostics.length != 1 || params.diagnostics[0].message!="Parse error."){  //when a parse error occurs, everything disappears, we don't want that (**1)
+      this.view.FocusView = []; // We forget every diagnostic sent before by the server.
     }
   }
 
@@ -214,7 +214,7 @@ class Utils {
   static add_cursor_event(editor){
 
     if(typeof this.currentcursor != "undefined"){ //We check if it is the first time a file is opened
-      this.currentcursor.dispose(); //We doesn't need to listen the last file cursor
+      this.currentcursor.dispose(); //We don't need to listen the last file cursor
     }
 
     //When the user move the cursor, we update the view
@@ -226,23 +226,23 @@ class Utils {
 
   static add_parser_event(editor){
     if(typeof this.currentEditorUnicode != "undefined"){ //We check if it is the first time a file is opened
-      this.currentEditorUnicode.dispose(); //We doesn't need to listen the last file cursor
+      this.currentEditorUnicode.dispose(); //We don't need to listen the last file cursor
     }
 
-    //When the change the text, we check the new changes with our parser.
+    //When the user changes the text, we check the new changes with our parser.
     this.currentEditorUnicode = editor.onDidStopChanging( (data) => {
       let i = 0;
       let j = 0;
-      for(j=0;j<data.changes.length;j++){ // For each changes
+      for(j=0;j<data.changes.length;j++){ // For each change
         for(i=0;i<this.parser.length;i++){ // For each parser traduction
           editor.scanInBufferRange(
-            new RegExp(this.parser[i].regex), // get the regex associate with the traduction parser
+            new RegExp(this.parser[i].regex), // get the regex associated with the traduction parser
             [
               [data.changes[j].newRange.start.row, 0],
               [data.changes[j].newRange.end.row +1, data.changes[0].newRange.end.colum]
             ], // scan uniquely next where changes have been made
             (iterator) =>{
-              iterator.replace(this.parser[i].unicode);  // replace the regex finded by a unicode symbol
+              iterator.replace(this.parser[i].unicode);  // replace the regex found by a unicode symbol
             }
           );
         }
@@ -250,7 +250,7 @@ class Utils {
     });
 
 
-    let i =0; // In case it is the first time the file is opened, we check the all content of the file.
+    let i =0; // In case it is the first time the file is opened, we check all the content of the file.
     for(i=0;i<this.parser.length;i++){
       editor.scan(
         new RegExp(this.parser[i].regex,'g'), // the g argument is used to make sure the scan will find and replace every occurence of the regex

@@ -1,6 +1,6 @@
 "use strict";
 
-/* Documetation Links
+/* Documentation Links
 
 https://developer.mozilla.org/en-US/docs/Web/javascript
 https://atom.io/docs/api/v1.28.0/AtomEnvironment
@@ -30,7 +30,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     super.activate();
     // create the view and variables we will need to handle the extensions.
     this.deduktiEditorView = new dk.default();
-    //Initiaise the tools we will need to add interaction within the editor
+    //Initialize the tools we will need to add interaction within the editor
     Utils.initialize(this);
 
   }
@@ -53,7 +53,7 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     var command = atom.config.get("dedukti-editor.lspServerPath");
     var args = atom.config.get("dedukti-editor.lspServerArgs");
 
-    /* // Debug for developper (isma)
+    /* // Debug for developper (Ismail)
      var command_test = "./lp-lsp_test";
     const childProcess = child_process.spawn(command_test, args,{
     cwd: "/home/isma/"
@@ -84,16 +84,16 @@ class DeduktiLanguageClient extends AutoLanguageClient {
     connection.onPublishDiagnostics = function(callback) {
       let mycallback = function(params) {
         // we add our function before the diagnostics are processed by atomlanguageclient
-        params.diagnostics = Utils.updateDiagnostics(params); // the colorBuffer function will color in red and green the editor,remove positive diagnostics and update the panel
+        params.diagnostics = Utils.updateDiagnostics(params); // the colorBuffer function will color in red and green the editor, remove positive diagnostics and update the panel
         callback(params); // Eventually, the remaining diagnostics are processed by atomlanguageclient
       };
       connection._onNotification(
         { method: "textDocument/publishDiagnostics" },
-        mycallback.bind(module.exports) // mycallback need to be execute within this file context  //https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Function/bind
+        mycallback.bind(module.exports) // mycallback needs to be executed within this file context //https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Function/bind
       );
     };
 
-    //TODO WORKAROUND AGAINST ISSUE NUMERO 1
+    //TODO WORKAROUND AGAINST ISSUE #1
 
   }
 

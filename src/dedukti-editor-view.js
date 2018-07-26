@@ -1,7 +1,7 @@
 class DeduktiEditorView {
 
   constructor() {
-    // DATA :
+    // Data :
     this.FocusView = [];
     this.initialized = false;
 
@@ -94,7 +94,7 @@ class DeduktiEditorView {
       this.element
     );
 
-    //First goup of buttons :
+    //First group of buttons :
     this.div_button_first = this.createCustomElement(
       "div",
       ["btn-group","proof-button"],
@@ -130,7 +130,7 @@ class DeduktiEditorView {
     return this.initialized;
   }
 
-  /* This function help us creating the element we need on our web page */
+  /* This function helps us creating the element we need on our web page */
   createCustomElement(type, classlist, attributes, textcontent, parentnode) {
 
     //It is just of wrapper around the DOM API to clean the code.
@@ -185,8 +185,8 @@ class DeduktiEditorView {
   updateView(selection, editor) {
     let path = editor.getPath();
     let i = 0;
-    // We check the selection is actually a point
-    //We use selection because for the moment we think it' better to not update the view when the user select a large part of text
+    // We check that the selection is actually a point
+    // We use selection because for the moment we think it's better not to update the view when the user selects a large part of text
     if (
       selection.newScreenRange.start.row == selection.newScreenRange.end.row &&
       selection.newScreenRange.start.column ==
@@ -195,7 +195,7 @@ class DeduktiEditorView {
       // we create some alias to clean the code
       let row = selection.newScreenRange.start.row;
       let column = selection.newScreenRange.start.column;
-      let none_objective = 0; //If no FocusView is associated with the cursor position
+      let none_objective = 0; // if no FocusView is associated with the cursor position
 
       for (i = 0; i < this.FocusView.length; i++) {
         // we find the focusView associated with the cursor position
@@ -228,7 +228,7 @@ class DeduktiEditorView {
     }
   }
 
-  /* A couple of function tu update each part of the view */
+  /* A couple of functions to update each part of the view */
 
   //update the current objective
   setCurrentObjectif(current) {
@@ -266,7 +266,7 @@ class DeduktiEditorView {
         list_element
       );
 
-      let thirdcol = this.createCustomElement(  // then the second column
+      let thirdcol = this.createCustomElement(  // then the third column
         "td",
         ["hypotype"],
         [],
@@ -307,7 +307,7 @@ class DeduktiEditorView {
     }
   }
 
-  /* A couple of function to enhance the user experience */
+  /* A couple of functions to enhance the user experience */
 
   //The aim of this function is to help the user finding which part of the goals list is related to the focus.
   markGoal(dataview) {
@@ -316,9 +316,9 @@ class DeduktiEditorView {
 
     let i = 0;
 
-    for(i=0; i < goals.length;i++) { //for ecah of those elements
-      if(goals[i].textContent === dataview.goal){ //we vheck if it type is the same as the current goal
-        goals[i].classList.add("text-info"); //if yes, we higlight it
+    for(i=0; i < goals.length;i++) { //for each of those elements
+      if(goals[i].textContent === dataview.goal){ //we check if its type is the same as the current goal
+        goals[i].classList.add("text-info"); //if yes, we highlight it
       }
       else if (goals[i].classList.contains("text-info")){ //if no, we remove the higlighting if necessary
         goals[i].classList.remove("text-info");
@@ -326,7 +326,7 @@ class DeduktiEditorView {
     }
   }
 
-  /* Two function to handle key binding */
+  /* Two functions to handle key binding */
   nextFocus() {
     //All variables we need
     let editor = atom.workspace.getActiveTextEditor();
@@ -336,7 +336,7 @@ class DeduktiEditorView {
     let point = this.closestNextRange(path, cursor.row, cursor.column);
 
     if (point != null) {
-      //We check a next focus view actually exists.
+      //We check that a next focus view actually exists.
       editor.setCursorScreenPosition([point.line, point.character]); //We move the cursor
     }
   }
@@ -355,8 +355,8 @@ class DeduktiEditorView {
 
   /* A couple of functions to deal with ranges */
   rangewithin(dvpath, dvRS, dvRE, dvCS, dvCE, apath, aR, aC) {
-    /*This function  return a boolean, his value is true when the cursor symbolised by aRow (aR) and aColumn (aC) is within the range
-    defined by the dvRowStart, dvRowEnd, dvColumnStart and dvColumnEnd. (and of course on the same file)
+    /*This function returns a boolean, his value is true when the cursor symbolised by aRow (aR) and aColumn (aC) is within the range
+    defined by the dvRowStart, dvRowEnd, dvColumnStart and dvColumnEnd (and of course on the same file)
     */
     if (dvpath != apath) {
       return false;
@@ -386,7 +386,7 @@ class DeduktiEditorView {
     //We compute the distance between each FocusView and the cursor, then we gather the results in an array called candidate
     for (i = 0; i < this.FocusView.length; i++) {
       if (this.FocusView[i].path === path) {
-        if (this.FocusView[i].range.end.line < row) { // we check is is efficient to compute distance between the two
+        if (this.FocusView[i].range.end.line < row) { // we check it is efficient to compute the distance between the two
           let travel = row - this.FocusView[i].range.end.line;
           candidate.push({
             distance: travel,
@@ -415,11 +415,11 @@ class DeduktiEditorView {
       }
       return this.FocusView[min_index].range.end;
     }
-    //IN case there is no next FocusView
+    //In case there is no next FocusView
     return null;
   }
 
-  //Exactely the same as closestLastRange except some details
+  //Exactly the same as closestLastRange except some details
   closestNextRange(path, row, column) {
     let i;
     let candidate = [];
