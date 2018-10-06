@@ -6,7 +6,7 @@
 scopeName: "source.dedukti" # <scope> should be a short, unique indicator for the language ("js", "php", "c", etc.)
 name: "Dedukti" # The title that will show up in grammar selection and on your status bar.
 fileTypes: [ # An array of file extensions.
-  "dk"
+  "lp"
 ]
 limitLineLength: false
 firstLineMatch: "" # A regular expression that is matched against the first line of the document when Atom is trying to decide if the grammar is appropriate. Useful for shell scripts, mostly.
